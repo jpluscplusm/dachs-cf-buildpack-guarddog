@@ -11,7 +11,17 @@ A Cloud Foundry buildpack which protects and instruments applications
 
 Alternatively use the [cf-bosh-cli](https://github.com/Orange-OpenSource/orange-cf-bosh-cli) Docker images.
 
+### Local
+
 ```
 $ bundle exec rake:unit
-$ bundle exec rake:integration
+```
+
+### Integration
+
+```
+$ CF_API=https://api.bosh-lite.com \
+  CF_USERNAME=admin \
+  CF_PASSWORD=admin \
+  bundle exec rake:integration
 ```
