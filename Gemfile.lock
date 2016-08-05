@@ -21,6 +21,7 @@ GEM
     json (1.8.3)
     kwalify (0.7.2)
     minitest (5.8.2)
+    rake (10.4.2)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
@@ -44,6 +45,7 @@ PLATFORMS
 
 DEPENDENCIES
   buildpack-packager!
+  rake
   rspec
 
 BUNDLED WITH
