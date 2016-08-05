@@ -8,4 +8,8 @@ namespace :spec do
   RSpec::Core::RakeTask.new(:integration) do |t|
     t.pattern = "spec/integration/**/*_spec.rb"
   end
+
+  RSpec::Core::RakeTask.new(:system) do |t|
+    t.pattern = "spec/system/**/*_spec.rb"
+  end
 end
