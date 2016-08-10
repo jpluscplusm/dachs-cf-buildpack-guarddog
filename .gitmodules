@@ -1,0 +1,3 @@
+[submodule "hello-python-web"]
+	path = spec/integration/fixtures/hello-python-web
+	url = https://github.com/jabley/hello-python-web.git

@@ -1,3 +1,5 @@
 #!/bin/bash
 
+set -e
+
 echo -e "---\ndefault_process_types:\n  web: while true; do sleep 5; done"
