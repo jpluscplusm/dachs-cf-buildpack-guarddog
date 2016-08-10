@@ -25,7 +25,9 @@ describe 'using the buildpack on a public CF' do
     `cf login -a #{cf_api} -u #{cf_username} -p #{cf_password} -o #{org} -s #{space} --skip-ssl-validation`
     expect($?.success?).to be_truthy, 'Login should have worked'
 
-    push_success = system("cf push #{app_name} -p spec/system/fixtures/app -b #{buildpack_uri} --no-route")
+    `cf push #{app_name} -p spec/system/fixtures/app -b #{buildpack_uri} --no-route --no-start`
+    `cf set-health-check #{app_name} none`
+    push_success = system("cf start #{app_name}")
     expect(push_success).to be_truthy
 
     expect(`cf app #{app_name}`).to include("buildpack: #{buildpack_uri}")
