@@ -2,8 +2,8 @@
 
 set -e
 
-WD=$(dirname ${0})
-TARGET_FILE=${WD}/.guarddog
+BUILD_DIR=$1
+TARGET_FILE=${BUILD_DIR}/.guarddog
 
 echo Staging GuardDog Buildpack
 echo file-contents > $TARGET_FILE
