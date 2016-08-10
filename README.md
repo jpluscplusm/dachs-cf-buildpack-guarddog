@@ -12,7 +12,7 @@ A Cloud Foundry buildpack which protects and instruments applications
 ### Local
 
 ```
-$ bundle exec rake:unit
+$ bundle exec rake spec:unit
 ```
 
 ### Integration
@@ -29,7 +29,7 @@ Alternatively use the [cf-bosh-cli](https://github.com/Orange-OpenSource/orange-
 $ CF_API=https://api.bosh-lite.com \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
-  bundle exec rake:integration
+  bundle exec rake spec:integration
 ```
 
 ### System
@@ -43,5 +43,5 @@ $ CF_API=https://api.bosh-lite.com \
   CF_ORG=test \
   CF_SPACE=test \
   BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git \
-  bundle exec rake:system
+  bundle exec rake spec:system
 ```
