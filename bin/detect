@@ -1,5 +1,6 @@
 #!/bin/bash
 
-set -xe
+set -ueo pipefail
 
+echo GuardDog
 exit 0
