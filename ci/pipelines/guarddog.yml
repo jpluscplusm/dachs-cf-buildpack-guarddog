@@ -1,0 +1,14 @@
+---
+jobs:
+- name: guarddog-tests
+  plan: 
+  - get: dachs-cf-buildpack-guarddog
+    trigger: true
+  - task: run-tests
+    file: dachs-cf-buildpack-guarddog/ci/tasks/run-tests.yml
+
+resources:
+- name: dachs-cf-buildpack-guarddog
+  type: git
+  source:
+    uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog
