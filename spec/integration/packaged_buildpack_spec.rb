@@ -45,10 +45,17 @@ describe 'using a packaged version of the buildpack' do
     expect(`cf create-space #{space}`).to include('OK')
     `cf target -s #{space}`
 
-    system('cf push -p spec/integration/fixtures/app -f spec/integration/fixtures/app/manifest.yml --no-route')
+    system('cf push test-app -p spec/integration/fixtures/app --no-route --no-start')
     expect($?.success?).to be_truthy
 
-    output = `cf app test-app`
-    expect(output).to include('buildpack: guarddog')
+    system("cf set-health-check test-app none")
+    expect($?.success?).to be_truthy
+
+    system("cf start test-app")
+    expect($?.success?).to be_truthy
+
+    output = `cf ssh test-app --command "ls -la app/"`
+    #output = `cf files test-app app/`
+    expect(output).to include('.guarddog')
   end
 end
