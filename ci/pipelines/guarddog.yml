@@ -1,11 +1,26 @@
 ---
 jobs:
 - name: guarddog-tests
-  plan: 
+  plan:
   - get: dachs-cf-buildpack-guarddog
     trigger: true
   - task: run-tests
     file: dachs-cf-buildpack-guarddog/ci/tasks/run-tests.yml
+
+- name: guarddog-system-tests
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    trigger: true
+    passed: [guarddog-tests]
+  - task: run-system-tests
+    file: dachs-cf-buildpack-guarddog/ci/tasks/run-system-tests.yml
+    params:
+      CF_API: {{cf_api}}
+      CF_USERNAME: {{cf_username}}
+      CF_PASSWORD: {{cf_password}}
+      CF_ORG: {{cf_org}}
+      CF_SPACE: {{cf_space}}
+      BUILDPACK_URI: {{buildpack_uri}}
 
 resources:
 - name: dachs-cf-buildpack-guarddog
