@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: dan0young/dachs-cf-docker
+    repository: dachscf/dachs-cf-docker
     tag: latest
 
 inputs:
