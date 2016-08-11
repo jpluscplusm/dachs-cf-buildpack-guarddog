@@ -1,3 +1,6 @@
 [submodule "hello-python-web"]
 	path = spec/system/fixtures/hello-python-web
 	url = https://github.com/jabley/hello-python-web.git
+[submodule "ruby-hello-world"]
+	path = spec/system/fixtures/ruby-hello-world
+	url = git@github.com:DigitalInnovation/ruby-hello-world.git

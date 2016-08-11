@@ -10,6 +10,6 @@ namespace :spec do
   end
 
   RSpec::Core::RakeTask.new(:system) do |t|
-    t.pattern = "spec/system/**/*_spec.rb"
+    t.pattern = FileList['spec/system/**/*_spec.rb'].exclude('spec/system/fixtures/**/*spec.rb')
   end
 end
