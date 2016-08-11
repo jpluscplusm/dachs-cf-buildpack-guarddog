@@ -37,11 +37,13 @@ $ CF_API=https://api.bosh-lite.com \
 Requires that the buildpack we want to test is available via a Git URI.
 
 ```
-$ CF_API=https://api.bosh-lite.com \
+$ CF_API=https://api.local.pcfdev.io \
+  APP_DOMAIN=local.pfcdev.io
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
   CF_ORG=test \
   CF_SPACE=test \
-  BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git \
   bundle exec rake spec:system
 ```
