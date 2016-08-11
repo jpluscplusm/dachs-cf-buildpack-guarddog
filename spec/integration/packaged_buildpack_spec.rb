@@ -8,7 +8,6 @@ describe 'using a packaged version of the buildpack' do
   let(:cf_api) { ENV.fetch('CF_API') }
   let(:cf_username) { ENV.fetch('CF_USERNAME') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD') }
-  let(:app_domain) { ENV.fetch('APP_DOMAIN') }
   let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
   let(:cf_home) { Dir.tmpdir }
   let(:org) { uuid }
