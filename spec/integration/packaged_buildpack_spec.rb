@@ -8,6 +8,7 @@ describe 'using a packaged version of the buildpack' do
   let(:cf_api) { ENV.fetch('CF_API') }
   let(:cf_username) { ENV.fetch('CF_USERNAME') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD') }
+  let(:app_domain) { ENV.fetch('APP_DOMAIN') }
   let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
   let(:cf_home) { Dir.tmpdir }
   let(:org) { uuid }
@@ -45,7 +46,7 @@ describe 'using a packaged version of the buildpack' do
     expect(`cf create-space #{space}`).to include('OK')
     `cf target -s #{space}`
 
-    system('cf push test-app -p spec/integration/fixtures/app --no-route --no-start')
+    system('cf push test-app -p spec/integration/fixtures/app --no-start')
     expect($?.success?).to be_truthy
 
     system("cf set-health-check test-app none")
@@ -55,7 +56,6 @@ describe 'using a packaged version of the buildpack' do
     expect($?.success?).to be_truthy
 
     output = `cf ssh test-app --command "ls -la app/"`
-    #output = `cf files test-app app/`
     expect(output).to include('.guarddog')
   end
 end
