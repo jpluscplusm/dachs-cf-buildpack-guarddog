@@ -12,6 +12,9 @@ jobs:
   - get: dachs-cf-buildpack-guarddog
     trigger: true
     passed: [guarddog-tests]
+  - put: acceptance
+    params:
+      repository: dachs-cf-buildpack-guarddog
   - task: run-system-tests
     file: dachs-cf-buildpack-guarddog/ci/system-test/task.yml
     params:
@@ -29,3 +32,10 @@ resources:
   type: git
   source:
     uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog
+    branch: master
+- name: acceptance
+  type: git
+  source:
+    uri: git@github.com:DigitalInnovation/dachs-cf-buildpack-guarddog.git
+    branch: acceptance
+    private_key: {{private-repo-key}}

@@ -2,6 +2,20 @@
 
 A Cloud Foundry buildpack which protects and instruments applications
 
+## CI
+
+To set up the pipeline on a local Concourse, assuming you have a PCF Dev running locally and your SSH in `~/.ssh/id_rsa`.
+
+```
+$ fly -t lite set-pipeline \
+  --pipeline guarddog \
+  --config ci/pipelines/guarddog.yml \
+  --var "private-repo-key=$(cat ~/.ssh/id_rsa)"
+  --load-vars-from ci/vars/pcfdev.yml
+```
+
+The SSH key is used for pushing to the `acceptance` branch, so you probably don't want to do this unless you're working on the pipeline itself.
+
 ## Testing
 
 ### Pre-requisites
