@@ -11,5 +11,13 @@ inputs:
 - name: dachs-cf-buildpack-guarddog
 
 run:
-  path: ci/scripts/run-tests.sh
+  path: ci/system-test/run.sh
   dir: dachs-cf-buildpack-guarddog
+
+params:
+    CF_API:
+    CF_USERNAME:
+    CF_PASSWORD:
+    CF_ORG:
+    CF_SPACE:
+    BUILDPACK_URI:
