@@ -29,7 +29,7 @@ Alternatively use the [cf-bosh-cli](https://github.com/Orange-OpenSource/orange-
 $ CF_API=https://api.bosh-lite.com \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
-  bundle exec rake spec:integration
+  ci/unit-test/run.sh
 ```
 
 ### System
@@ -43,7 +43,7 @@ $ CF_API=https://api.local.pcfdev.io \
   CF_PASSWORD=admin \
   CF_ORG=test \
   CF_SPACE=test \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git \
-  bundle exec rake spec:system
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#branch \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#branch \
+  ci/system-test/run.sh
 ```

@@ -35,7 +35,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:app_path) { 'spec/system/fixtures/hello-python-web' }
 
     it 'allows regular apps to run whilst still providing .guarddog file' do
-      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git')
+      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
       expect_app_returns_hello_world(app_path)
     end
   end
@@ -45,7 +45,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
     it 'allows a ruby app to run whilst providing a .guarddog file' do
-      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git')
+      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       expect_app_returns_hello_world(app_path)
     end
   end
