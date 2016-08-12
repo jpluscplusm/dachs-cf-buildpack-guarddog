@@ -16,11 +16,13 @@ jobs:
     file: dachs-cf-buildpack-guarddog/ci/tasks/run-system-tests.yml
     params:
       CF_API: {{cf_api}}
+      APP_DOMAIN: {{app_domain}}
       CF_USERNAME: {{cf_username}}
       CF_PASSWORD: {{cf_password}}
       CF_ORG: {{cf_org}}
       CF_SPACE: {{cf_space}}
-      BUILDPACK_URI: {{buildpack_uri}}
+      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
+      GD_BUILDPACK_URI: {{gd_buildpack_uri}}
 
 resources:
 - name: dachs-cf-buildpack-guarddog
