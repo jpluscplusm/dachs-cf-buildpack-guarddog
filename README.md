@@ -7,6 +7,10 @@ A Cloud Foundry buildpack which protects and instruments applications
 To set up the pipeline on a local Concourse, assuming you have a PCF Dev running locally and your SSH in `~/.ssh/id_rsa`.
 
 ```
+$ fly --t lite login  --concourse-url http://192.168.100.4:8080
+```
+
+```
 $ fly -t lite set-pipeline \
   --pipeline guarddog \
   --config ci/pipelines/guarddog.yml \
@@ -20,10 +24,14 @@ The SSH key is used for pushing to the `acceptance` branch, so you probably don'
 
 ### Pre-requisites
 
-* Ruby (look in Gemfile for version)
-* Bundler
+* [Ruby][Ruby] (look in Gemfile for version)
+* [Bundler][Bundler] (`gem install bundler`)
 
 ### Local
+
+```
+$ bundle install
+```
 
 ```
 $ bundle exec rake spec:unit
@@ -61,3 +69,6 @@ $ CF_API=https://api.local.pcfdev.io \
   GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#branch \
   ci/system-test/run.sh
 ```
+
+[Ruby]: https://www.ruby-lang.org/en/
+[Bundler]: https://bundler.io/
