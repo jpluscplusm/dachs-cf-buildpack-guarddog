@@ -6,6 +6,13 @@ A Cloud Foundry buildpack which protects and instruments applications
 
 To set up the pipeline on a local Concourse, assuming you have a PCF Dev running locally and your SSH in `~/.ssh/id_rsa`.
 
+There must be an Org called `test` containing a Space called `test` on your local PCF Dev.  If these are not set up you must run:
+
+```
+$ cf create-org test
+$ cf create-space test -o test
+```
+
 ```
 $ fly --t lite login  --concourse-url http://192.168.100.4:8080
 ```
