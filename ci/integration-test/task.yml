@@ -1,0 +1,31 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: dachscf/dachs-cf-docker
+    tag: latest
+
+inputs:
+- name: dachs-cf-buildpack-guarddog
+
+run:
+  path: ci/integration-test/run.sh
+  dir: dachs-cf-buildpack-guarddog
+
+params:
+  CF_API:
+  APP_DOMAIN:
+  CF_USERNAME:
+  CF_PASSWORD:
+  CF_ORG:
+  CF_SPACE:
+  CF_API_REMOTE:
+  APP_DOMAIN_REMOTE:
+  CF_USERNAME_REMOTE:
+  CF_PASSWORD_REMOTE:
+  CF_ORG_REMOTE:
+  CF_SPACE_REMOTE:
+  MULTI_BUILDPACK_URI:
+  GD_BUILDPACK_URI:
