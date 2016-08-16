@@ -80,6 +80,7 @@ describe 'using a remote version of the buildpack', :if => !ENV["CREATE_BUILDPAC
   after(:each) do
     `cf delete-buildpack -f guarddog` rescue nil
     `cf delete-org -f #{org}` rescue nil
+    `cf delete -f #{uuid}` rescue nil
     File.delete(filename) rescue nil
     FileUtils.rm_rf(cf_home)
   end
