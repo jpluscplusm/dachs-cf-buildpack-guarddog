@@ -21,11 +21,35 @@ $ fly --t lite login  --concourse-url http://192.168.100.4:8080
 $ fly -t lite set-pipeline \
   --pipeline guarddog \
   --config ci/pipelines/guarddog.yml \
-  --var "private-repo-key=$(cat ~/.ssh/id_rsa)"
-  --load-vars-from ci/vars/pcfdev.yml
+  --var "private-repo-key=$(cat ~/.ssh/id_rsa)" \
+  --load-vars-from ci/vars/global.yml \
+  --var create_buildpack=true
 ```
 
+The `CREATE_BUILDPACK` var is set to true to indicate that we are running local integration tests.
+
 The SSH key is used for pushing to the `acceptance` branch, so you probably don't want to do this unless you're working on the pipeline itself.
+
+## Team CI
+
+```
+$ fly --t dachs login  --concourse-url https://ci.dachs.dog
+```
+
+When setting the pipeline on the team Concourse CI, we should set the `CREATE_BUILDPACK` var to "false" to run the remote integration test. You should also override the standard global vars with suitable PWS test credentials, org and space.
+
+```
+$ fly -t dachs set-pipeline \
+  --pipeline guarddog \
+  --config ci/pipelines/guarddog.yml \
+  --var "private-repo-key=$(cat ~/.ssh/id_rsa)" \
+  --load-vars-from ci/vars/global.yml \
+  --var cf_username_remote = username \
+  --var cf_password_remote = password \
+  --var cf_space_remote = space \
+  --var cf_org_remote = org \
+  --var create_buildpack=false
+```
 
 ## Testing
 
