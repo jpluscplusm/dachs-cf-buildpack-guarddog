@@ -20,8 +20,8 @@ describe 'GuardDog with multi-buildpack' do
     @cf_home = Dir.mktmpdir
     ENV['CF_HOME'] = @cf_home
 
-    `cf login -a #{cf_api} -u #{cf_username} -p #{cf_password} -o #{org} -s #{space} --skip-ssl-validation`
-    expect($?.success?).to be_truthy, 'Login should have worked'
+    login_result = `cf login -a #{cf_api} -u #{cf_username} -p #{cf_password} -o #{org} -s #{space} --skip-ssl-validation`
+    expect($?.success?).to be_truthy, "#{login_result}"
   end
 
   after(:each) do
