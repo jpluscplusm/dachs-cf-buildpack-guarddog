@@ -7,11 +7,34 @@ jobs:
   - task: run-tests
     file: dachs-cf-buildpack-guarddog/ci/unit-test/task.yml
 
-- name: guarddog-system-tests
+- name: guarddog-integration-tests
   plan:
   - get: dachs-cf-buildpack-guarddog
     trigger: true
     passed: [guarddog-tests]
+  - task: run-integration-tests
+    file: dachs-cf-buildpack-guarddog/ci/integration-test/task.yml
+    params:
+      CF_API: {{cf_api}}
+      APP_DOMAIN: {{app_domain}}
+      CF_USERNAME: {{cf_username}}
+      CF_PASSWORD: {{cf_password}}
+      CF_ORG: {{cf_org}}
+      CF_SPACE: {{cf_space}}
+      CF_API_REMOTE: {{cf_api_remote}}
+      APP_DOMAIN_REMOTE: {{app_domain_remote}}
+      CF_USERNAME_REMOTE: {{cf_username_remote}}
+      CF_PASSWORD_REMOTE: {{cf_password_remote}}
+      CF_ORG_REMOTE: {{cf_org_remote}}
+      CF_SPACE_REMOTE: {{cf_space_remote}}
+      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
+      GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+
+- name: guarddog-system-tests
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    trigger: true
+    passed: [guarddog-integration-tests]
   - put: acceptance
     params:
       repository: dachs-cf-buildpack-guarddog

@@ -46,7 +46,7 @@ describe 'using a packaged version of the buildpack', :if => ENV["CREATE_BUILDPA
     expect(`cf create-space #{space}`).to include('OK')
     `cf target -s #{space}`
 
-    system('cf push #{uuid} -p spec/integration/fixtures/app --no-start')
+    system("cf push #{uuid} -p spec/integration/fixtures/app --no-start")
     expect($?.success?).to be_truthy
 
     system("cf set-health-check #{uuid} none")

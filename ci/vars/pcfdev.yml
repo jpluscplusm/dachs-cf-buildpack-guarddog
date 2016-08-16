@@ -1,9 +1,0 @@
----
-cf_api: https://api.local.pcfdev.io
-app_domain: local.pcfdev.io
-cf_username: admin
-cf_password: admin
-cf_org: test
-cf_space: test
-multi_buildpack_uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master
-gd_buildpack_uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master
