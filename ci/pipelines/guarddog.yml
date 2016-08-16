@@ -29,6 +29,7 @@ jobs:
       CF_SPACE_REMOTE: {{cf_space_remote}}
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+      CREATE_BUILDPACK: {{create_buildpack}}
 
 - name: guarddog-system-tests
   plan:
