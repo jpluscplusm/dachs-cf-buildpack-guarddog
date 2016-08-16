@@ -52,7 +52,7 @@ Requires
 * a CF that we can push buildpack zips into
 * CF and Bosh CLIs on `$PATH`
 
-Alternatively use the [cf-bosh-cli](https://github.com/Orange-OpenSource/orange-cf-bosh-cli) Docker image, which has all the binary dependencies.
+Alternatively use the [dachs-cf-docker](https://github.com/DigitalInnovation/dachs-cf-docker) Docker image, which has all the binary dependencies and is the same image as used by the Concourse pipeline.
 
 ```
 $ CF_API=https://api.bosh-lite.com \
