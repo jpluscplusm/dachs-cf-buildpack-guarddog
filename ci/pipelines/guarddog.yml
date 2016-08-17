@@ -45,6 +45,14 @@ jobs:
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
 
+- name: promote
+  plan:
+  - get: acceptance
+    passed: [guarddog-system-tests]
+  - put: stable
+    params:
+      repository: acceptance
+
 resources:
 - name: dachs-cf-buildpack-guarddog
   type: git
@@ -56,4 +64,10 @@ resources:
   source:
     uri: git@github.com:DigitalInnovation/dachs-cf-buildpack-guarddog.git
     branch: acceptance
+    private_key: {{private-repo-key}}
+- name: stable
+  type: git
+  source:
+    uri: git@github.com:DigitalInnovation/dachs-cf-buildpack-guarddog.git
+    branch: stable
     private_key: {{private-repo-key}}
