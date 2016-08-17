@@ -1,0 +1,10 @@
+---
+cf_api: https://api.local.pcfdev.io
+app_domain: local.pcfdev.io
+cf_username: admin
+cf_org: test
+cf_space: test
+cf_api_remote: https://api.run.pivotal.io
+multi_buildpack_uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master
+gd_buildpack_uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master
+create_buildpack: "false"

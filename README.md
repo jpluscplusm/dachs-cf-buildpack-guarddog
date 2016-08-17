@@ -42,13 +42,9 @@ When setting the pipeline on the team Concourse CI, we should set the `CREATE_BU
 $ fly -t dachs set-pipeline \
   --pipeline guarddog \
   --config ci/pipelines/guarddog.yml \
+  --load-vars-from ci/vars/remote.yml \
   --var "private-repo-key=$(cat ~/.ssh/id_rsa)" \
-  --load-vars-from ci/vars/global.yml \
-  --var cf_username_remote = username \
-  --var cf_password_remote = password \
-  --var cf_space_remote = space \
-  --var cf_org_remote = org \
-  --var create_buildpack=false
+  --var cf_password=password
 ```
 
 ## Testing
@@ -80,7 +76,7 @@ Alternatively use the [dachs-cf-docker](https://github.com/DigitalInnovation/dac
 
 ```
 $ CREATE_BUILDPACK=true \
-  CF_API=https://api.bosh-lite.com \
+  CF_API=https://api.local.pcfdev.io \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
   ci/integration-test/run.sh
@@ -92,9 +88,13 @@ On remote CI the changes will already have been committed and be accessible via 
 
 ```
 $ CREATE_BUILDPACK=false \
-  CF_API=https://api.bosh-lite.com \
+  CF_API=https://api.local.pcfdev.io \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
+  CF_ORG=test \
+  CF_SPACE=test \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#branch \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#branch \
   ci/integration-test/run.sh
 ```
 

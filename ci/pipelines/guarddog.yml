@@ -21,12 +21,6 @@ jobs:
       CF_PASSWORD: {{cf_password}}
       CF_ORG: {{cf_org}}
       CF_SPACE: {{cf_space}}
-      CF_API_REMOTE: {{cf_api_remote}}
-      APP_DOMAIN_REMOTE: {{app_domain_remote}}
-      CF_USERNAME_REMOTE: {{cf_username_remote}}
-      CF_PASSWORD_REMOTE: {{cf_password_remote}}
-      CF_ORG_REMOTE: {{cf_org_remote}}
-      CF_SPACE_REMOTE: {{cf_space_remote}}
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
       CREATE_BUILDPACK: {{create_buildpack}}

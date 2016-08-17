@@ -61,12 +61,12 @@ describe 'using a packaged version of the buildpack', :if => ENV.fetch("CREATE_B
 end
 
 describe 'using a remote version of the buildpack', :if => ENV.fetch("CREATE_BUILDPACK") == "false" do
-  let(:cf_api) { ENV.fetch('CF_API_REMOTE') }
-  let(:cf_username) { ENV.fetch('CF_USERNAME_REMOTE') }
-  let(:cf_password) { ENV.fetch('CF_PASSWORD_REMOTE') }
+  let(:cf_api) { ENV.fetch('CF_API') }
+  let(:cf_username) { ENV.fetch('CF_USERNAME') }
+  let(:cf_password) { ENV.fetch('CF_PASSWORD') }
   let(:cf_home) { Dir.tmpdir }
-  let(:org) { ENV.fetch('CF_ORG_REMOTE') }
-  let(:space) { ENV.fetch('CF_SPACE_REMOTE') }
+  let(:org) { ENV.fetch('CF_ORG') }
+  let(:space) { ENV.fetch('CF_SPACE') }
   let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
   let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
 
