@@ -33,7 +33,7 @@ The SSH key is used for pushing to the `acceptance` branch, so you probably don'
 ## Team CI
 
 ```
-$ fly --t dachs login  --concourse-url https://ci.dachs.dog
+$ fly --target dachs login  --concourse-url https://ci.dachs.dog
 ```
 
 When setting the pipeline on the team Concourse CI, we should set the `CREATE_BUILDPACK` var to "false" to run the remote integration test. You should also override the standard global vars with suitable PWS test credentials, org and space.
