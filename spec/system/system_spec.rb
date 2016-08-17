@@ -36,7 +36,8 @@ describe 'GuardDog with multi-buildpack' do
 
     it 'allows regular apps to run whilst still providing .guarddog file' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
-      expect_app_returns_hello_world(app_path)
+      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      expect_app_returns_hello_world
     end
   end
 
@@ -46,7 +47,8 @@ describe 'GuardDog with multi-buildpack' do
 
     it 'allows a ruby app to run whilst providing a .guarddog file' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
-      expect_app_returns_hello_world(app_path)
+      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      expect_app_returns_hello_world
     end
   end
 
@@ -57,19 +59,36 @@ describe 'GuardDog with multi-buildpack' do
     }
   end
 
-  def expect_app_returns_hello_world(app_path)
+  def push_and_check_if_diego?
     system("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start")
-    system("cf set-health-check #{app_name} none")
-    push_success = system("cf start #{app_name}")
-    expect(push_success).to be_truthy
+    app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
+    app_info.include? '"diego": true'
+  end
 
-    expect(`cf app #{app_name}`).to include("buildpack: #{multi_buildpack_uri}")
-
+  def expect_app_returns_hello_world
     response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE)
     expect(response.code).to be(200)
     expect(response.body).to include('Hello, World!')
+  end
+
+  def start_diego_app(app_path)
+    system("cf set-health-check #{app_name} none")
+    start_success = system("cf start #{app_name}")
+    expect(start_success).to be_truthy
+
+    expect(`cf app #{app_name}`).to include("buildpack: #{multi_buildpack_uri}")
 
     output = `cf ssh #{app_name} --command "ls -la app/"`
+    expect(output).to include('.guarddog')
+  end
+
+  def start_dea_app(app_path)
+    start_success = system("cf start #{app_name}")
+    expect(start_success).to be_truthy
+
+    expect(`cf app #{app_name}`).to include("buildpack: #{multi_buildpack_uri}")
+
+    output = `cf files #{app_name} app/`
     expect(output).to include('.guarddog')
   end
 end
