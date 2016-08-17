@@ -68,7 +68,7 @@ $ bundle install
 $ bundle exec rake spec:unit
 ```
 
-### Integration
+### Integration - Before Commit
 
 Requires
 
@@ -79,10 +79,23 @@ Requires
 Alternatively use the [dachs-cf-docker](https://github.com/DigitalInnovation/dachs-cf-docker) Docker image, which has all the binary dependencies and is the same image as used by the Concourse pipeline.
 
 ```
-$ CF_API=https://api.bosh-lite.com \
+$ CREATE_BUILDPACK=true \
+  CF_API=https://api.bosh-lite.com \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
-  ci/unit-test/run.sh
+  ci/integration-test/run.sh
+```
+
+### Integration - After Commit
+
+On remote CI the changes will already have been committed and be accessible via a Git URI, and there won't be a PCF Dev available - so we don't need to bundle and install the buildpack.
+
+```
+$ CREATE_BUILDPACK=false \
+  CF_API=https://api.bosh-lite.com \
+  CF_USERNAME=admin \
+  CF_PASSWORD=admin \
+  ci/integration-test/run.sh
 ```
 
 ### System

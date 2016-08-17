@@ -2,7 +2,7 @@ require 'fileutils'
 require 'securerandom'
 require 'tmpdir'
 
-describe 'using a packaged version of the buildpack', :if => ENV["CREATE_BUILDPACK"] == "true"  do
+describe 'using a packaged version of the buildpack', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
   let(:version) { File.open('VERSION').read }
   let(:filename) { "guarddog_buildpack-cached-v#{version}.zip" }
   let(:cf_api) { ENV.fetch('CF_API') }
@@ -60,7 +60,7 @@ describe 'using a packaged version of the buildpack', :if => ENV["CREATE_BUILDPA
   end
 end
 
-describe 'using a remote version of the buildpack', :if => ENV["CREATE_BUILDPACK"] == "false" do
+describe 'using a remote version of the buildpack', :if => ENV.fetch("CREATE_BUILDPACK") == "false" do
   let(:cf_api) { ENV.fetch('CF_API_REMOTE') }
   let(:cf_username) { ENV.fetch('CF_USERNAME_REMOTE') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD_REMOTE') }
