@@ -87,7 +87,8 @@ describe 'using a remote version of the buildpack', :if => ENV.fetch("CREATE_BUI
 
   it 'can be used' do
 
-    `cf api #{cf_api} --skip-ssl-validation`
+    output = `cf api #{cf_api} --skip-ssl-validation`
+    expect(output).to include("OK")
     output = `cf auth #{cf_username} #{cf_password}`
     expect(output).to include("Authenticating...\nOK")
     expect($?.success?).to be_truthy
