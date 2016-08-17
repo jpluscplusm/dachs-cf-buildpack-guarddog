@@ -96,16 +96,26 @@ describe 'using a remote version of the buildpack', :if => ENV.fetch("CREATE_BUI
     expect(`cf target -o #{org}`).to_not include('FAILED')
     expect(`cf target -s #{space}`).to_not include('FAILED')
 
-    system("cf push #{uuid} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start")
+    system("cf push #{uuid} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
     expect($?.success?).to be_truthy
 
-    system("cf set-health-check #{uuid} none")
-    expect($?.success?).to be_truthy
+    app_info = `cf curl /v2/apps/$(cf app #{uuid} --guid)`
+    if app_info.include? '"diego": true'
 
-    system("cf start #{uuid}")
-    expect($?.success?).to be_truthy
+      system("cf set-health-check #{uuid} none")
+      expect($?.success?).to be_truthy
 
-    output = `cf ssh #{uuid} --command "ls -la app/"`
-    expect(output).to include('.guarddog')
+      system("cf start #{uuid}")
+      expect($?.success?).to be_truthy
+
+      output = `cf ssh #{uuid} --command "ls -la app/"`
+      expect(output).to include('.guarddog')
+    else
+      system("cf start #{uuid}")
+      expect($?.success?).to be_truthy
+
+      output = `cf files #{uuid} app/`
+      expect(output).to include('.guarddog')
+    end
   end
 end
