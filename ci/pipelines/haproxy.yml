@@ -1,0 +1,27 @@
+---
+jobs:
+- name: compile
+  plan:
+  - get: dachs-haproxy-src
+    trigger: true
+  - task: build-binary
+    file: dachs-cf-buildpack-guarddog/ci/haproxy-build/task.yml
+  - put: dachs-haproxy-binary
+    params:
+      file: dachs-haproxy-built/haproxy
+
+resources:
+- name: dachs-haproxy-src
+  type: s3
+  source:
+    bucket: dachs-haproxy-src
+    region_name: eu-west-1
+    regexp: haproxy-(.*).tar.gz
+
+- name: dachs-haproxy-binary
+  type: s3
+  source:
+    bucket: dachs-haproxy-build
+    region_name: eu-west-1
+    access_key_id: {{concourse-aws-key-id}}
+    secret_access_key: {{concourse-aws-secret-key}}

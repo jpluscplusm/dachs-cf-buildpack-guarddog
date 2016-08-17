@@ -1,0 +1,29 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: dachscf/dachs-cf-docker
+    tag: latest
+
+inputs:
+- name: dachs-haproxy-src
+
+outputs:
+- name: dachs-haproxy-built
+
+run:
+  path: sh
+  dir: dachs-haproxy-src
+  args:
+  - -exc
+  - |
+    whoami
+    env
+    find .
+    tar -zxf haproxy-1.6.8.tar.gz
+    cd haproxy-1.6.8
+    make TARGET=generic
+    tar czf 
+    cp haproxy ../../dachs-haproxy-built/
