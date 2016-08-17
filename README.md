@@ -36,7 +36,7 @@ The SSH key is used for pushing to the `acceptance` branch, so you probably don'
 $ fly --target dachs login  --concourse-url https://ci.dachs.dog
 ```
 
-When setting the pipeline on the team Concourse CI, we should set the `CREATE_BUILDPACK` var to "false" to run the remote integration test. You should also override the standard global vars with suitable PWS test credentials, org and space.
+When setting the pipeline on the team Concourse CI, we should use the `remote.yml` file which has sensible, non-secret defaults for running the tests remotely (such as not creating a buildpack). You should also override the standard global vars with suitable PWS test credentials, org and space.
 
 ```
 $ fly -t dachs set-pipeline \
