@@ -18,6 +18,12 @@ resources:
     region_name: eu-west-1
     regexp: haproxy-(.*).tar.gz
 
+- name: dachs-cf-buildpack-guarddog
+  type: git
+  source:
+    uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog
+    branch: master
+
 - name: dachs-haproxy-binary
   type: s3
   source:
