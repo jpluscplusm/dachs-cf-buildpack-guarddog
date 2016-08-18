@@ -9,7 +9,7 @@ describe 'GuardDog buildpack alone' do
   let(:cf_username) { ENV.fetch('CF_USERNAME') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD') }
   let(:app_name) { "guarddog-#{SecureRandom.uuid}" }
-  let(:cf_home) { Dir.tmpdir }
+  let(:cf_home) { Dir.mktmpdir }
   let(:org) { app_name }
   let(:space) { app_name }
 
