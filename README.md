@@ -91,10 +91,10 @@ $ CREATE_BUILDPACK=false \
   CF_API=https://api.local.pcfdev.io \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
-  CF_ORG=test \
-  CF_SPACE=test \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#branch \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#branch \
+  CF_ORG=pcfdev-org \
+  CF_SPACE=pcfdev-space \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
   ci/integration-test/run.sh
 ```
 
@@ -104,13 +104,13 @@ Requires that the buildpack we want to test is available via a Git URI.
 
 ```
 $ CF_API=https://api.local.pcfdev.io \
-  APP_DOMAIN=local.pfcdev.io
+  APP_DOMAIN=local.pcfdev.io \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
-  CF_ORG=test \
-  CF_SPACE=test \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#branch \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#branch \
+  CF_ORG=pcfdev-org \
+  CF_SPACE=pcfdev-space \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
   ci/system-test/run.sh
 ```
 
