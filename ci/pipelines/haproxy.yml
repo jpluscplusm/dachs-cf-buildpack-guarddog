@@ -4,6 +4,8 @@ jobs:
   plan:
   - get: dachs-haproxy-src
     trigger: true
+  - get: dachs-cf-buildpack-guarddog
+    trigger: true
   - task: build-binary
     file: dachs-cf-buildpack-guarddog/ci/haproxy-build/task.yml
   - put: dachs-haproxy-binary
@@ -29,5 +31,6 @@ resources:
   source:
     bucket: dachs-haproxy-build
     region_name: eu-west-1
+    versioned_file: haproxy
     access_key_id: {{concourse-aws-key-id}}
     secret_access_key: {{concourse-aws-secret-key}}
