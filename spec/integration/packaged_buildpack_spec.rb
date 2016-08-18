@@ -2,7 +2,7 @@ require 'fileutils'
 require 'securerandom'
 require 'tmpdir'
 
-describe 'using a packaged version of the buildpack', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
+describe 'GuardDog buildpack alone' do
   let(:version) { File.open('VERSION').read }
   let(:filename) { "guarddog_buildpack-cached-v#{version}.zip" }
   let(:cf_api) { ENV.fetch('CF_API') }
@@ -13,94 +13,42 @@ describe 'using a packaged version of the buildpack', :if => ENV.fetch("CREATE_B
   let(:org) { uuid }
   let(:space) { uuid }
 
-  before(:each) do
-    ENV['CF_HOME'] = cf_home
-    `cf`
-    expect($?.success?).to be_truthy, 'CF CLI should be available'
-    expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
-  end
+  context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
+    before(:each) do
+      ENV['CF_HOME'] = cf_home
+      `cf`
+      expect($?.success?).to be_truthy, 'CF CLI should be available'
+      expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
+    end
 
-  after(:each) do
-    `cf delete-buildpack -f guarddog` rescue nil
-    `cf delete-org -f #{org}` rescue nil
-    `cf delete -f #{uuid}` rescue nil
-    File.delete(filename) rescue nil
-    FileUtils.rm_rf(cf_home)
-  end
+    after(:each) do
+      `cf delete-buildpack -f guarddog` rescue nil
+      `cf delete-org -f #{org}` rescue nil
+      `cf delete -f #{uuid}` rescue nil
+      File.delete(filename) rescue nil
+      FileUtils.rm_rf(cf_home)
+    end
 
-  it 'can be created' do
-    `buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml`
-    expect($?.success?).to be_truthy
-    expect(File).to exist(filename)
+    it 'can be created' do
+      `buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml`
+      expect($?.success?).to be_truthy
+      expect(File).to exist(filename)
 
-    `cf api #{cf_api} --skip-ssl-validation`
-    output = `cf auth #{cf_username} #{cf_password}`
-    expect(output).to include("Authenticating...\nOK")
-    expect($?.success?).to be_truthy
+      `cf api #{cf_api} --skip-ssl-validation`
+      output = `cf auth #{cf_username} #{cf_password}`
+      expect(output).to include("Authenticating...\nOK")
+      expect($?.success?).to be_truthy
 
-    `cf create-buildpack guarddog #{filename} 999 --enable`
-    expect($?.success?).to be_truthy
+      `cf create-buildpack guarddog #{filename} 999 --enable`
+      expect($?.success?).to be_truthy
 
-    expect(`cf create-org #{org}`).to include('OK')
-    `cf target -o #{org}`
-    expect(`cf create-space #{space}`).to include('OK')
-    `cf target -s #{space}`
+      expect(`cf create-org #{org}`).to include('OK')
+      `cf target -o #{org}`
+      expect(`cf create-space #{space}`).to include('OK')
+      `cf target -s #{space}`
 
-    system("cf push #{uuid} -p spec/integration/fixtures/app --no-start")
-    expect($?.success?).to be_truthy
-
-    system("cf set-health-check #{uuid} none")
-    expect($?.success?).to be_truthy
-
-    system("cf start #{uuid}")
-    expect($?.success?).to be_truthy
-
-    output = `cf ssh #{uuid} --command "ls -la app/"`
-    expect(output).to include('.guarddog')
-  end
-end
-
-describe 'using a remote version of the buildpack', :if => ENV.fetch("CREATE_BUILDPACK") == "false" do
-  let(:cf_api) { ENV.fetch('CF_API') }
-  let(:cf_username) { ENV.fetch('CF_USERNAME') }
-  let(:cf_password) { ENV.fetch('CF_PASSWORD') }
-  let(:cf_home) { Dir.tmpdir }
-  let(:org) { ENV.fetch('CF_ORG') }
-  let(:space) { ENV.fetch('CF_SPACE') }
-  let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
-  let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
-
-  before(:each) do
-    ENV['CF_HOME'] = cf_home
-    `cf`
-    expect($?.success?).to be_truthy, 'CF CLI should be available'
-    expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
-  end
-
-  after(:each) do
-    `cf delete-buildpack -f guarddog` rescue nil
-    `cf delete-org -f #{org}` rescue nil
-    `cf delete -f #{uuid}` rescue nil
-    File.delete(filename) rescue nil
-    FileUtils.rm_rf(cf_home)
-  end
-
-  it 'can be used' do
-
-    output = `cf api #{cf_api} --skip-ssl-validation`
-    expect(output).to include("OK")
-    output = `cf auth #{cf_username} #{cf_password}`
-    expect(output).to include("Authenticating...\nOK")
-    expect($?.success?).to be_truthy
-
-    expect(`cf target -o #{org}`).to_not include('FAILED')
-    expect(`cf target -s #{space}`).to_not include('FAILED')
-
-    system("cf push #{uuid} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
-    expect($?.success?).to be_truthy
-
-    app_info = `cf curl /v2/apps/$(cf app #{uuid} --guid)`
-    if app_info.include? '"diego": true'
+      system("cf push #{uuid} -p spec/integration/fixtures/app --no-start")
+      expect($?.success?).to be_truthy
 
       system("cf set-health-check #{uuid} none")
       expect($?.success?).to be_truthy
@@ -110,12 +58,65 @@ describe 'using a remote version of the buildpack', :if => ENV.fetch("CREATE_BUI
 
       output = `cf ssh #{uuid} --command "ls -la app/"`
       expect(output).to include('.guarddog')
-    else
-      system("cf start #{uuid}")
+    end
+  end
+
+  context 'when the buildpack is specified by URI', :if => ENV.fetch("CREATE_BUILDPACK") == "false" do
+    let(:cf_api) { ENV.fetch('CF_API') }
+    let(:cf_username) { ENV.fetch('CF_USERNAME') }
+    let(:cf_password) { ENV.fetch('CF_PASSWORD') }
+    let(:cf_home) { Dir.tmpdir }
+    let(:org) { ENV.fetch('CF_ORG') }
+    let(:space) { ENV.fetch('CF_SPACE') }
+    let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
+    let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
+
+    before(:each) do
+      ENV['CF_HOME'] = cf_home
+      `cf`
+      expect($?.success?).to be_truthy, 'CF CLI should be available'
+      expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
+    end
+
+    after(:each) do
+      `cf delete-buildpack -f guarddog` rescue nil
+      `cf delete-org -f #{org}` rescue nil
+      `cf delete -f #{uuid}` rescue nil
+      File.delete(filename) rescue nil
+      FileUtils.rm_rf(cf_home)
+    end
+
+    it 'can be used' do
+      output = `cf api #{cf_api} --skip-ssl-validation`
+      expect(output).to include("OK")
+      output = `cf auth #{cf_username} #{cf_password}`
+      expect(output).to include("Authenticating...\nOK")
       expect($?.success?).to be_truthy
 
-      output = `cf files #{uuid} app/`
-      expect(output).to include('.guarddog')
+      expect(`cf target -o #{org}`).to_not include('FAILED')
+      expect(`cf target -s #{space}`).to_not include('FAILED')
+
+      system("cf push #{uuid} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
+      expect($?.success?).to be_truthy
+
+      app_info = `cf curl /v2/apps/$(cf app #{uuid} --guid)`
+      if app_info.include? '"diego": true'
+
+        system("cf set-health-check #{uuid} none")
+        expect($?.success?).to be_truthy
+
+        system("cf start #{uuid}")
+        expect($?.success?).to be_truthy
+
+        output = `cf ssh #{uuid} --command "ls -la app/"`
+        expect(output).to include('.guarddog')
+      else
+        system("cf start #{uuid}")
+        expect($?.success?).to be_truthy
+
+        output = `cf files #{uuid} app/`
+        expect(output).to include('.guarddog')
+      end
     end
   end
 end
