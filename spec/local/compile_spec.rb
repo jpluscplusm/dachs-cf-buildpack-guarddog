@@ -5,7 +5,7 @@ describe 'bin/compile' do
 
   before(:all) do
     @app_dir = Dir.mktmpdir('app')
-    @cache_dir = Dir.mktmpdir('cache')
+    @cache_dir = File.join(Dir.tmpdir, ('guarddog-cache'))
     @guarddog_file = File.join(@app_dir, '.guarddog')
     @haproxy = File.join(@app_dir, 'haproxy')
     system("ruby bin/compile #{@app_dir} #{@cache_dir}")
