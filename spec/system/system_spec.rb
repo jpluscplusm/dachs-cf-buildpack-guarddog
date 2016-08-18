@@ -60,35 +60,29 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   def push_and_check_if_diego?
-    system("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start")
+    expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start")
     app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
     app_info.include? '"diego": true'
   end
 
   def expect_app_returns_hello_world
+    puts "https://#{app_name}.#{app_domain}"
     response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE)
     expect(response.code).to be(200)
     expect(response.body).to include('Hello, World!')
   end
 
   def start_diego_app(app_path)
-    system("cf set-health-check #{app_name} none")
-    start_success = system("cf start #{app_name}")
-    expect(start_success).to be_truthy
+    expect_command_to_succeed("cf set-health-check #{app_name} none")
+    expect_command_to_succeed("cf start #{app_name}")
 
-    expect(`cf app #{app_name}`).to include("buildpack: #{multi_buildpack_uri}")
-
-    output = `cf ssh #{app_name} --command "ls -la app/"`
-    expect(output).to include('.guarddog')
+    expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
+    expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", '.guarddog')
   end
 
   def start_dea_app(app_path)
-    start_success = system("cf start #{app_name}")
-    expect(start_success).to be_truthy
-
-    expect(`cf app #{app_name}`).to include("buildpack: #{multi_buildpack_uri}")
-
-    output = `cf files #{app_name} app/`
-    expect(output).to include('.guarddog')
+    expect_command_to_succeed("cf start #{app_name}")
+    expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
+    expect_command_to_succeed_and_output("cf files #{app_name} app/", '.guarddog')
   end
 end
