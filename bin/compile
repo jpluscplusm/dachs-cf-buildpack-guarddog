@@ -3,15 +3,20 @@
 require 'net/http'
 require 'fileutils'
 
+def download(host, path, destination)
+  Net::HTTP.start(host) do |http|
+      resp = http.get(path)
+      open(destination, 'wb') do |file|
+          file.write(resp.body)
+      end
+  end
+
+  puts "Download of #{host}#{path} to #{destination} finished"
+end
+
 dirname = ARGV[0]
 
 FileUtils.touch(File.join(dirname, '.guarddog'))
 
-Net::HTTP.start('s3-eu-west-1.amazonaws.com') do |http|
-    resp = http.get('/dachs-haproxy-build/haproxy')
-    open(File.join(dirname, 'haproxy'), 'wb') do |file|
-        file.write(resp.body)
-    end
-end
-
-puts "Download of haproxy finished"
+destination = File.join(dirname, 'haproxy')
+download('s3-eu-west-1.amazonaws.com', '/dachs-haproxy-build/haproxy', destination)
