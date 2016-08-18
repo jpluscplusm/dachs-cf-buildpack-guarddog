@@ -37,10 +37,10 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed_and_output("cf auth #{cf_username} #{cf_password}", "Authenticating...\nOK")
       expect_command_to_succeed("cf create-buildpack guarddog #{filename} 999 --enable")
 
-      expect(`cf create-org #{org}`).to include('OK')
-      `cf target -o #{org}`
-      expect(`cf create-space #{space}`).to include('OK')
-      `cf target -s #{space}`
+      expect_command_to_succeed_and_output("cf create-org #{org}", 'OK')
+      expect_command_to_succeed("cf target -o #{org}")
+      expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
+      expect_command_to_succeed("cf target -s #{space}")
 
       expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
       expect_command_to_succeed("cf set-health-check #{app_name} none")
@@ -72,8 +72,8 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed_and_output("cf api #{cf_api} --skip-ssl-validation", "OK")
       expect_command_to_succeed_and_output("cf auth #{cf_username} #{cf_password}", "Authenticating...\nOK")
 
-      expect(`cf target -o #{org}`).to_not include('FAILED')
-      expect(`cf target -s #{space}`).to_not include('FAILED')
+      expect_command_to_succeed("cf target -o #{org}")
+      expect_command_to_succeed("cf target -s #{space}")
       expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
