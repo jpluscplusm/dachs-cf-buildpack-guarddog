@@ -14,12 +14,15 @@ def download(host, path, destination)
   puts "Download of #{host}#{path} to #{destination} finished"
 end
 
-dirname = ARGV[0]
+app_dir = ARGV[0]
+cache_dir = ARGV[1]
 
-FileUtils.touch(File.join(dirname, '.guarddog'))
+FileUtils.touch(File.join(app_dir, '.guarddog'))
 
-destination = File.join(dirname, 'haproxy')
+destination = File.join(app_dir, 'haproxy')
 download('s3-eu-west-1.amazonaws.com', '/dachs-haproxy-build/haproxy', destination)
 
-destination = File.join(dirname, 'nginx.tgz')
+destination = File.join(cache_dir, 'nginx.tgz')
 download('buildpacks.cloudfoundry.org', '/concourse-binaries/nginx/nginx-1.11.3-linux-x64.tgz', destination)
+
+system("cd #{app_dir}; tar -xvf #{destination}")

@@ -4,11 +4,11 @@ require 'tmpdir'
 describe 'bin/compile' do
 
   before(:all) do
-    @tmpdir = Dir.mktmpdir
+    @tmpdir = Dir.mktmpdir('app')
+    @cache_dir = Dir.mktmpdir('cache')
     @guarddog_file = File.join(@tmpdir, '.guarddog')
     @haproxy = File.join(@tmpdir, 'haproxy')
-    @nginx = File.join(@tmpdir, 'nginx.tgz')
-    system("ruby bin/compile #{@tmpdir}")
+    system("ruby bin/compile #{@tmpdir} #{@cache_dir}")
   end
 
   after(:all) do
@@ -24,6 +24,11 @@ describe 'bin/compile' do
   end
 
   it 'downloads nginx' do
-    expect(File.exists?(@nginx)).to be_truthy
+    expect(File.exists?(File.join(@cache_dir, 'nginx.tgz'))).to be_truthy
+  end
+
+  it 'untars nginx' do
+    expect(Dir.exists?(File.join(@tmpdir, 'nginx'))).to be_truthy
+    expect(File.exists?(File.join(@tmpdir, 'nginx', 'sbin', 'nginx'))).to be_truthy
   end
 end
