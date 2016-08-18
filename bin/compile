@@ -20,3 +20,6 @@ FileUtils.touch(File.join(dirname, '.guarddog'))
 
 destination = File.join(dirname, 'haproxy')
 download('s3-eu-west-1.amazonaws.com', '/dachs-haproxy-build/haproxy', destination)
+
+destination = File.join(dirname, 'nginx.tgz')
+download('buildpacks.cloudfoundry.org', '/concourse-binaries/nginx/nginx-1.11.3-linux-x64.tgz', destination)
