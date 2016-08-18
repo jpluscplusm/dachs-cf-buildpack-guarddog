@@ -30,31 +30,24 @@ describe 'GuardDog buildpack alone' do
     end
 
     it 'can be created' do
-      `buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml`
-      expect($?.success?).to be_truthy
+      expect_command_to_succeed("buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml")
       expect(File).to exist(filename)
 
-      `cf api #{cf_api} --skip-ssl-validation`
+      expect_command_to_succeed("cf api #{cf_api} --skip-ssl-validation")
       output = `cf auth #{cf_username} #{cf_password}`
       expect(output).to include("Authenticating...\nOK")
       expect($?.success?).to be_truthy
 
-      `cf create-buildpack guarddog #{filename} 999 --enable`
-      expect($?.success?).to be_truthy
+      expect_command_to_succeed("cf create-buildpack guarddog #{filename} 999 --enable")
 
       expect(`cf create-org #{org}`).to include('OK')
       `cf target -o #{org}`
       expect(`cf create-space #{space}`).to include('OK')
       `cf target -s #{space}`
 
-      system("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
-      expect($?.success?).to be_truthy
-
-      system("cf set-health-check #{app_name} none")
-      expect($?.success?).to be_truthy
-
-      system("cf start #{app_name}")
-      expect($?.success?).to be_truthy
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
+      expect_command_to_succeed("cf set-health-check #{app_name} none")
+      expect_command_to_succeed("cf start #{app_name}")
 
       output = `cf ssh #{app_name} --command "ls -la app/"`
       expect(output).to include('.guarddog')
@@ -89,27 +82,26 @@ describe 'GuardDog buildpack alone' do
       expect(`cf target -o #{org}`).to_not include('FAILED')
       expect(`cf target -s #{space}`).to_not include('FAILED')
 
-      system("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
-      expect($?.success?).to be_truthy
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
-
-        system("cf set-health-check #{app_name} none")
-        expect($?.success?).to be_truthy
-
-        system("cf start #{app_name}")
-        expect($?.success?).to be_truthy
+        expect_command_to_succeed("cf set-health-check #{app_name} none")
+        expect_command_to_succeed("cf start #{app_name}")
 
         output = `cf ssh #{app_name} --command "ls -la app/"`
         expect(output).to include('.guarddog')
       else
-        system("cf start #{app_name}")
-        expect($?.success?).to be_truthy
+        expect_command_to_succeed("cf start #{app_name}")
 
         output = `cf files #{app_name} app/`
         expect(output).to include('.guarddog')
       end
     end
+  end
+
+  def expect_command_to_succeed(command)
+    system(command)
+    expect($?.success?).to be_truthy
   end
 end
