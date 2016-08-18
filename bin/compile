@@ -1,9 +1,17 @@
-#!/bin/bash
+#!/usr/bin/ruby
 
-set -e
+require 'net/http'
+require 'fileutils'
 
-BUILD_DIR=$1
-TARGET_FILE=${BUILD_DIR}/.guarddog
+dirname = ARGV[0]
 
-echo Staging GuardDog Buildpack
-echo file-contents > $TARGET_FILE
+FileUtils.touch(File.join(dirname, '.guarddog'))
+
+Net::HTTP.start('s3-eu-west-1.amazonaws.com') do |http|
+    resp = http.get('/dachs-haproxy-build/haproxy')
+    open(File.join(dirname, 'haproxy'), 'wb') do |file|
+        file.write(resp.body)
+    end
+end
+
+puts "Download of haproxy finished"
