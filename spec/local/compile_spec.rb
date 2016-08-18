@@ -7,7 +7,7 @@ describe 'bin/compile' do
     @tmpdir = Dir.mktmpdir
     @written_file = File.join(@tmpdir, '.guarddog')
     @haproxy = File.join(@tmpdir, 'haproxy')
-    system("ruby bin/compile.rb #{@tmpdir}")
+    system("ruby bin/compile #{@tmpdir}")
   end
 
   after(:all) do
