@@ -13,20 +13,23 @@ describe 'GuardDog buildpack alone' do
   let(:org) { app_name }
   let(:space) { app_name }
 
-  context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
-    before(:each) do
-      ENV['CF_HOME'] = cf_home
-      `cf`
-      expect($?.success?).to be_truthy, 'CF CLI should be available'
-      expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
-    end
+  before(:each) do
+    ENV['CF_HOME'] = cf_home
+    `cf`
+    expect($?.success?).to be_truthy, 'CF CLI should be available'
+    expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
+  end
 
+  after(:each) do
+    `cf delete -f #{app_name}` rescue nil
+    File.delete(filename) rescue nil
+    FileUtils.rm_rf(cf_home)
+  end
+
+  context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
     after(:each) do
       `cf delete-buildpack -f guarddog` rescue nil
       `cf delete-org -f #{org}` rescue nil
-      `cf delete -f #{app_name}` rescue nil
-      File.delete(filename) rescue nil
-      FileUtils.rm_rf(cf_home)
     end
 
     it 'can be created' do
@@ -54,19 +57,6 @@ describe 'GuardDog buildpack alone' do
     let(:org) { ENV.fetch('CF_ORG') }
     let(:space) { ENV.fetch('CF_SPACE') }
     let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
-
-    before(:each) do
-      ENV['CF_HOME'] = cf_home
-      `cf`
-      expect($?.success?).to be_truthy, 'CF CLI should be available'
-      expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
-    end
-
-    after(:each) do
-      `cf delete -f #{app_name}` rescue nil
-      File.delete(filename) rescue nil
-      FileUtils.rm_rf(cf_home)
-    end
 
     it 'can be used' do
       expect_command_to_succeed_and_output("cf api #{cf_api} --skip-ssl-validation", "OK")
