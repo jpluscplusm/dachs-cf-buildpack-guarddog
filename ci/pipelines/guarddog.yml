@@ -6,6 +6,12 @@ jobs:
     trigger: true
   - task: run-tests
     file: dachs-cf-buildpack-guarddog/ci/unit-test/task.yml
+    on_failure:
+            put: slack-notify
+            params:
+              text: "guarddog-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests"
+              channel: {{slack-channel}}
+              username: concourse
 
 - name: guarddog-integration-tests
   plan:
@@ -24,6 +30,12 @@ jobs:
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
       CREATE_BUILDPACK: {{create_buildpack}}
+    on_failure:
+            put: slack-notify
+            params:
+              text: "guarddog-integration-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests"
+              channel: {{slack-channel}}
+              username: concourse
 
 - name: guarddog-system-tests
   plan:
@@ -44,6 +56,18 @@ jobs:
       CF_SPACE: {{cf_space}}
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+    on_success:
+        put: slack-notify
+        params:
+          text: "guarddog-system-tests job passed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests"
+          channel: {{slack-channel}}
+          username: concourse
+    on_failure:
+        put: slack-notify
+        params:
+          text: "guarddog-system-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests"
+          channel: {{slack-channel}}
+          username: concourse
 
 - name: promote
   plan:
@@ -52,6 +76,18 @@ jobs:
   - put: stable
     params:
       repository: acceptance
+    on_success:
+        put: slack-notify
+        params:
+          text: "Guarddog promoted to stable branch! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/promote"
+          channel: {{slack-channel}}
+          username: concourse
+    on_failure:
+        put: slack-notify
+        params:
+          text: "Guarddog promote job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/promote"
+          channel: {{slack-channel}}
+          username: concourse
 
 resources:
 - name: dachs-cf-buildpack-guarddog
@@ -71,3 +107,14 @@ resources:
     uri: git@github.com:DigitalInnovation/dachs-cf-buildpack-guarddog.git
     branch: stable
     private_key: {{private-repo-key}}
+- name: slack-notify
+  type: slack-notification
+  source:
+    url: {{slack-notify-webhook}}
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest

@@ -8,4 +8,6 @@ cf_space: test
 cf_api_remote: https://api.run.pivotal.io
 multi_buildpack_uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master
 gd_buildpack_uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master
+slack-notify-webhook: https://hooks.slack.com/services/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
+slack-channel: platform-eng-team
 create_buildpack: "true"
