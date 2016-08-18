@@ -24,6 +24,5 @@ run:
     find .
     tar -zxf haproxy-1.6.8.tar.gz
     cd haproxy-1.6.8
-    make TARGET=generic
-    tar czf 
+    make TARGET=linux2628 USE_PCRE=1 USE_OPENSSL=0 USE_ZLIB=1 DEBUG_CFLAGS=-s
     cp haproxy ../../dachs-haproxy-built/
