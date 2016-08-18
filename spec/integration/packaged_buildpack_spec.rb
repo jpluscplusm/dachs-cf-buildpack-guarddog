@@ -8,10 +8,10 @@ describe 'GuardDog buildpack alone' do
   let(:cf_api) { ENV.fetch('CF_API') }
   let(:cf_username) { ENV.fetch('CF_USERNAME') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD') }
-  let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
+  let(:app_name) { "guarddog-#{SecureRandom.uuid}" }
   let(:cf_home) { Dir.tmpdir }
-  let(:org) { uuid }
-  let(:space) { uuid }
+  let(:org) { app_name }
+  let(:space) { app_name }
 
   context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
     before(:each) do
@@ -24,7 +24,7 @@ describe 'GuardDog buildpack alone' do
     after(:each) do
       `cf delete-buildpack -f guarddog` rescue nil
       `cf delete-org -f #{org}` rescue nil
-      `cf delete -f #{uuid}` rescue nil
+      `cf delete -f #{app_name}` rescue nil
       File.delete(filename) rescue nil
       FileUtils.rm_rf(cf_home)
     end
@@ -47,28 +47,23 @@ describe 'GuardDog buildpack alone' do
       expect(`cf create-space #{space}`).to include('OK')
       `cf target -s #{space}`
 
-      system("cf push #{uuid} -p spec/integration/fixtures/app --no-start")
+      system("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
       expect($?.success?).to be_truthy
 
-      system("cf set-health-check #{uuid} none")
+      system("cf set-health-check #{app_name} none")
       expect($?.success?).to be_truthy
 
-      system("cf start #{uuid}")
+      system("cf start #{app_name}")
       expect($?.success?).to be_truthy
 
-      output = `cf ssh #{uuid} --command "ls -la app/"`
+      output = `cf ssh #{app_name} --command "ls -la app/"`
       expect(output).to include('.guarddog')
     end
   end
 
   context 'when the buildpack is specified by URI', :if => ENV.fetch("CREATE_BUILDPACK") == "false" do
-    let(:cf_api) { ENV.fetch('CF_API') }
-    let(:cf_username) { ENV.fetch('CF_USERNAME') }
-    let(:cf_password) { ENV.fetch('CF_PASSWORD') }
-    let(:cf_home) { Dir.tmpdir }
     let(:org) { ENV.fetch('CF_ORG') }
     let(:space) { ENV.fetch('CF_SPACE') }
-    let(:uuid) { "guarddog-#{SecureRandom.uuid}" }
     let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
 
     before(:each) do
@@ -79,9 +74,7 @@ describe 'GuardDog buildpack alone' do
     end
 
     after(:each) do
-      `cf delete-buildpack -f guarddog` rescue nil
-      `cf delete-org -f #{org}` rescue nil
-      `cf delete -f #{uuid}` rescue nil
+      `cf delete -f #{app_name}` rescue nil
       File.delete(filename) rescue nil
       FileUtils.rm_rf(cf_home)
     end
@@ -96,25 +89,25 @@ describe 'GuardDog buildpack alone' do
       expect(`cf target -o #{org}`).to_not include('FAILED')
       expect(`cf target -s #{space}`).to_not include('FAILED')
 
-      system("cf push #{uuid} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
+      system("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
       expect($?.success?).to be_truthy
 
-      app_info = `cf curl /v2/apps/$(cf app #{uuid} --guid)`
+      app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
 
-        system("cf set-health-check #{uuid} none")
+        system("cf set-health-check #{app_name} none")
         expect($?.success?).to be_truthy
 
-        system("cf start #{uuid}")
+        system("cf start #{app_name}")
         expect($?.success?).to be_truthy
 
-        output = `cf ssh #{uuid} --command "ls -la app/"`
+        output = `cf ssh #{app_name} --command "ls -la app/"`
         expect(output).to include('.guarddog')
       else
-        system("cf start #{uuid}")
+        system("cf start #{app_name}")
         expect($?.success?).to be_truthy
 
-        output = `cf files #{uuid} app/`
+        output = `cf files #{app_name} app/`
         expect(output).to include('.guarddog')
       end
     end
