@@ -9,6 +9,14 @@ A Cloud Foundry buildpack which protects and instruments applications
 * [Ruby][Ruby] (look in Gemfile for version)
 * [Bundler][Bundler] (`gem install bundler`)
 
+There are five types of tests:
+
+1. Unit tests, for Ruby stuff
+1. Scripts - black box tests that check the buildpack scripts
+1. Pre-commit integration - tests GuardDog buildpack when _pushed_ into a CF
+1. Post commit integration - tests GuardDog buildpack when CF _clones_ it from a Git URI
+1. System - tests Multibuildpack composing GuardDog and regular app buildpacks
+
 ### Ruby Unit Tests
 
 ```
@@ -19,7 +27,7 @@ $ bundle install
 $ bundle exec rake spec:unit
 ```
 
-### Guarddog Integration - Before Commit
+### Guarddog Buildpack Scripts
 
 Runs the scripts in a black-box style, and asserts on their outputs/side affects.
 
@@ -61,7 +69,7 @@ $ CREATE_BUILDPACK=false \
   ci/integration-test/run.sh
 ```
 
-### System
+### System - Multibuildpack Composing GuardDog and Other Buildpacks
 
 Requires that the buildpack we want to test is available via a Git URI.
 
