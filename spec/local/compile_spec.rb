@@ -22,13 +22,4 @@ describe 'bin/compile' do
   it 'downloads haproxy' do
     expect(File.exists?(@haproxy)).to be_truthy
   end
-
-  it 'downloads nginx tarball' do
-    expect(File.exists?(File.join(@cache_dir, 'nginx.tgz'))).to be_truthy
-  end
-
-  it 'untars nginx executable' do
-    expect(Dir.exists?(File.join(@app_dir, 'nginx'))).to be_truthy
-    expect(File.exists?(File.join(@app_dir, 'nginx', 'sbin', 'nginx'))).to be_truthy
-  end
 end
