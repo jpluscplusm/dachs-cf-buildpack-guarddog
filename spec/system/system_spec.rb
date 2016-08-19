@@ -38,6 +38,7 @@ describe 'GuardDog with multi-buildpack' do
     it 'allows regular apps to run whilst still providing .guarddog file' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      expect_app_requires_basic_auth
       expect_app_returns_hello_world
     end
   end
@@ -49,6 +50,7 @@ describe 'GuardDog with multi-buildpack' do
     it 'allows a ruby app to run whilst providing a .guarddog file' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      expect_app_requires_basic_auth
       expect_app_returns_hello_world
     end
   end
@@ -66,8 +68,14 @@ describe 'GuardDog with multi-buildpack' do
     app_info.include? '"diego": true'
   end
 
+  def expect_app_requires_basic_auth
+    expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/", verify_ssl: OpenSSL::SSL::VERIFY_NONE)}.to raise_error { |error|
+      expect(error.response.code).to be(401)
+    }
+  end
+
   def expect_app_returns_hello_world
-    response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE)
+    response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
     expect(response.code).to be(200)
     expect(response.body).to include('Hello, World!')
   end
