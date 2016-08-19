@@ -2,7 +2,8 @@
 jobs:
 - name: unit-tests
   plan:
-  - get: master
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
     trigger: true
   - task: unit-tests
     file: dachs-cf-buildpack-guarddog/ci/unit-test/task.yml
@@ -15,7 +16,8 @@ jobs:
               
 - name: script-tests
   plan:
-  - get: master
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
     trigger: true
     passed: [unit-tests]
   - task: script-tests
@@ -29,7 +31,8 @@ jobs:
 
 - name: integration-tests
   plan:
-  - get: master
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
     trigger: true
     passed: [script-tests]
   - task: run-integration-tests
@@ -53,7 +56,8 @@ jobs:
 
 - name: system-tests
   plan:
-  - get: master
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
     trigger: true
     passed: [integration-tests]
   - put: acceptance
@@ -86,7 +90,8 @@ jobs:
 
 - name: speculative-system-tests
   plan:
-  - get: speculative
+  - get: dachs-cf-buildpack-guarddog
+    resource: speculative
     trigger: true
   - task: run-system-tests
     file: dachs-cf-buildpack-guarddog/ci/system-test/task.yml
