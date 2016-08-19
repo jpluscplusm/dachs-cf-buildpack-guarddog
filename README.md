@@ -2,6 +2,81 @@
 
 A Cloud Foundry buildpack which protects and instruments applications
 
+## Testing
+
+### Pre-requisites
+
+* [Ruby][Ruby] (look in Gemfile for version)
+* [Bundler][Bundler] (`gem install bundler`)
+
+### Ruby Unit Tests
+
+```
+$ bundle install
+```
+
+```
+$ bundle exec rake spec:unit
+```
+
+### Guarddog Integration - Before Commit
+
+Runs the scripts in a black-box style, and asserts on their outputs/side affects.
+
+```
+$ bundle exec rake spec:scripts
+```
+
+### Guarddog Integration - Before Commit
+
+Requires
+
+* `zip` on `$PATH`
+* a CF that we can push buildpack zips into
+* CF and Bosh CLIs on `$PATH`
+
+Alternatively use the [dachs-cf-docker](https://github.com/DigitalInnovation/dachs-cf-docker) Docker image, which has all the binary dependencies and is the same image as used by the Concourse pipeline.
+
+```
+$ CREATE_BUILDPACK=true \
+  CF_API=https://api.local.pcfdev.io \
+  CF_USERNAME=admin \
+  CF_PASSWORD=admin \
+  ci/integration-test/run.sh
+```
+
+### Guarddog Integration - After Commit
+
+On remote CI the changes will already have been committed and be accessible via a Git URI, and there won't be a PCF Dev available - so we don't need to bundle and install the buildpack.
+
+```
+$ CREATE_BUILDPACK=false \
+  CF_API=https://api.local.pcfdev.io \
+  CF_USERNAME=admin \
+  CF_PASSWORD=admin \
+  CF_ORG=pcfdev-org \
+  CF_SPACE=pcfdev-space \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
+  ci/integration-test/run.sh
+```
+
+### System
+
+Requires that the buildpack we want to test is available via a Git URI.
+
+```
+$ CF_API=https://api.local.pcfdev.io \
+  APP_DOMAIN=local.pcfdev.io \
+  CF_USERNAME=admin \
+  CF_PASSWORD=admin \
+  CF_ORG=pcfdev-org \
+  CF_SPACE=pcfdev-space \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
+  ci/system-test/run.sh
+```
+
 ## CI
 
 To set up the pipeline on a local Concourse, assuming you have a PCF Dev running locally and your SSH in `~/.ssh/id_rsa`.
@@ -47,72 +122,6 @@ $ fly -t dachs set-pipeline \
   --var cf_password=password
 ```
 
-## Testing
-
-### Pre-requisites
-
-* [Ruby][Ruby] (look in Gemfile for version)
-* [Bundler][Bundler] (`gem install bundler`)
-
-### Local
-
-```
-$ bundle install
-```
-
-```
-$ bundle exec rake spec:unit
-```
-
-### Integration - Before Commit
-
-Requires
-
-* `zip` on `$PATH`
-* a CF that we can push buildpack zips into
-* CF and Bosh CLIs on `$PATH`
-
-Alternatively use the [dachs-cf-docker](https://github.com/DigitalInnovation/dachs-cf-docker) Docker image, which has all the binary dependencies and is the same image as used by the Concourse pipeline.
-
-```
-$ CREATE_BUILDPACK=true \
-  CF_API=https://api.local.pcfdev.io \
-  CF_USERNAME=admin \
-  CF_PASSWORD=admin \
-  ci/integration-test/run.sh
-```
-
-### Integration - After Commit
-
-On remote CI the changes will already have been committed and be accessible via a Git URI, and there won't be a PCF Dev available - so we don't need to bundle and install the buildpack.
-
-```
-$ CREATE_BUILDPACK=false \
-  CF_API=https://api.local.pcfdev.io \
-  CF_USERNAME=admin \
-  CF_PASSWORD=admin \
-  CF_ORG=pcfdev-org \
-  CF_SPACE=pcfdev-space \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
-  ci/integration-test/run.sh
-```
-
-### System
-
-Requires that the buildpack we want to test is available via a Git URI.
-
-```
-$ CF_API=https://api.local.pcfdev.io \
-  APP_DOMAIN=local.pcfdev.io \
-  CF_USERNAME=admin \
-  CF_PASSWORD=admin \
-  CF_ORG=pcfdev-org \
-  CF_SPACE=pcfdev-space \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
-  ci/system-test/run.sh
-```
 
 [Ruby]: https://www.ruby-lang.org/en/
 [Bundler]: https://bundler.io/

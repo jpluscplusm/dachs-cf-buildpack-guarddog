@@ -2,7 +2,11 @@ require 'rspec/core/rake_task'
 
 namespace :spec do
   RSpec::Core::RakeTask.new(:unit) do |t|
-    t.pattern = "spec/local/**/*_spec.rb"
+    t.pattern = "spec/unit/**/*_spec.rb"
+  end
+  
+  RSpec::Core::RakeTask.new(:scripts) do |t|
+    t.pattern = "spec/scripts/**/*_spec.rb"
   end
 
   RSpec::Core::RakeTask.new(:integration) do |t|

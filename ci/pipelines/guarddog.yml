@@ -1,23 +1,37 @@
 ---
 jobs:
-- name: guarddog-tests
+- name: unit-tests
   plan:
   - get: dachs-cf-buildpack-guarddog
     trigger: true
-  - task: run-tests
+  - task: unit-tests
     file: dachs-cf-buildpack-guarddog/ci/unit-test/task.yml
     on_failure:
-            put: slack-notify
-            params:
-              text: "guarddog-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests"
-              channel: {{slack-channel}}
-              username: concourse
+      put: slack-notify
+      params:
+        text: "unit-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/unit-tests"
+        channel: {{slack-channel}}
+        username: concourse
+              
+- name: script-tests
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    trigger: true
+    passed: [unit-tests]
+  - task: script-tests
+    file: dachs-cf-buildpack-guarddog/ci/script-test/task.yml
+    on_failure:
+      put: slack-notify
+      params:
+        text: "scrip-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/script-tests"
+        channel: {{slack-channel}}
+        username: concourse
 
 - name: guarddog-integration-tests
   plan:
   - get: dachs-cf-buildpack-guarddog
     trigger: true
-    passed: [guarddog-tests]
+    passed: [script-tests]
   - task: run-integration-tests
     file: dachs-cf-buildpack-guarddog/ci/integration-test/task.yml
     params:
@@ -31,11 +45,11 @@ jobs:
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
       CREATE_BUILDPACK: {{create_buildpack}}
     on_failure:
-            put: slack-notify
-            params:
-              text: "guarddog-integration-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests"
-              channel: {{slack-channel}}
-              username: concourse
+      put: slack-notify
+      params:
+        text: "guarddog-integration-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests"
+        channel: {{slack-channel}}
+        username: concourse
 
 - name: guarddog-system-tests
   plan:
