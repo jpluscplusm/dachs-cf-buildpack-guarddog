@@ -53,6 +53,7 @@ describe 'GuardDog buildpack alone' do
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", '.guarddog')
       expect_hap_to_require_basic_auth
+      expect_200_on_valid_auth
     end
   end
 
@@ -80,6 +81,7 @@ describe 'GuardDog buildpack alone' do
       end
 
       expect_hap_to_require_basic_auth
+      expect_200_on_valid_auth
     end
   end
 
@@ -87,5 +89,10 @@ describe 'GuardDog buildpack alone' do
     expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/hap", verify_ssl: OpenSSL::SSL::VERIFY_NONE)}.to raise_error { |error|
       expect(error.response.code).to be(401)
     }
+  end
+
+  def expect_200_on_valid_auth
+    response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/hap", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+    expect(response.code).to be(200)
   end
 end
