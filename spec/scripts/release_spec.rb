@@ -5,6 +5,6 @@ describe 'bin/release' do
   end
 
   it 'returns a command to loop indefinitely with caning the CPU' do
-    expect(`bin/release`).to eq("---\ndefault_process_types:\n  web: while true; do sleep 5; done\n")
+    expect(`bin/release`).to eq("---\ndefault_process_types:\n  web: ./haproxy -f haproxy.cfg\n")
   end
 end

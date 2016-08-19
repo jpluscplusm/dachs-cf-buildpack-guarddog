@@ -28,8 +28,8 @@ describe 'GuardDog buildpack alone' do
 
   context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
     after(:each) do
-      `cf delete-buildpack -f guarddog` rescue nil
-      `cf delete-org -f #{org}` rescue nil
+       `cf delete-buildpack -f guarddog` rescue nil
+       `cf delete-org -f #{org}` rescue nil
     end
 
     it 'can be created' do
@@ -45,7 +45,7 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
       expect_command_to_succeed("cf target -s #{space}")
 
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start -c null")
       expect_command_to_succeed("cf set-health-check #{app_name} none")
       expect_command_to_succeed("cf start #{app_name}")
 

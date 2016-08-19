@@ -2,4 +2,4 @@
 
 set -e
 
-echo -e "---\ndefault_process_types:\n  web: while true; do sleep 5; done"
+echo -e "---\ndefault_process_types:\n  web: ./haproxy -f haproxy.cfg"
