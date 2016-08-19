@@ -1,18 +1,8 @@
 #!/usr/bin/ruby
 
-require 'net/http'
+require_relative '../lib/downloader'
 require 'fileutils'
-
-def download(host, path, destination)
-  Net::HTTP.start(host) do |http|
-      resp = http.get(path)
-      open(destination, 'wb') do |file|
-          file.write(resp.body)
-      end
-  end
-
-  puts "Download of #{host}#{path} to #{destination} finished"
-end
+require 'net/http'
 
 app_dir = ARGV[0]
 cache_dir = ARGV[1]
@@ -23,4 +13,4 @@ FileUtils.mkdir_p(cache_dir)
 FileUtils.touch(File.join(app_dir, '.guarddog'))
 
 destination = File.join(app_dir, 'haproxy')
-download('s3-eu-west-1.amazonaws.com', '/dachs-haproxy-build/haproxy', destination)
+Downloader.download('s3-eu-west-1.amazonaws.com', '/dachs-haproxy-build/haproxy', destination)
