@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'rest-client'
 require 'securerandom'
 require 'tmpdir'
 
@@ -6,6 +7,7 @@ describe 'GuardDog buildpack alone' do
   let(:version) { File.open('VERSION').read }
   let(:filename) { "guarddog_buildpack-cached-v#{version}.zip" }
   let(:cf_api) { ENV.fetch('CF_API') }
+  let(:app_domain) { ENV.fetch('APP_DOMAIN') }
   let(:cf_username) { ENV.fetch('CF_USERNAME') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD') }
   let(:app_name) { "guarddog-#{SecureRandom.uuid}" }
@@ -45,11 +47,12 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
       expect_command_to_succeed("cf target -s #{space}")
 
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start -c null")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
       expect_command_to_succeed("cf set-health-check #{app_name} none")
       expect_command_to_succeed("cf start #{app_name}")
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", '.guarddog')
+      expect_hap_to_require_basic_auth
     end
   end
 
@@ -75,6 +78,14 @@ describe 'GuardDog buildpack alone' do
         expect_command_to_succeed("cf start #{app_name}")
         expect_command_to_succeed_and_output("cf files #{app_name} app/", '.guarddog')
       end
+
+      expect_hap_to_require_basic_auth
     end
+  end
+
+  def expect_hap_to_require_basic_auth
+    expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/hap", verify_ssl: OpenSSL::SSL::VERIFY_NONE)}.to raise_error { |error|
+      expect(error.response.code).to be(401)
+    }
   end
 end
