@@ -66,7 +66,6 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   def expect_app_returns_hello_world
-    puts "https://#{app_name}.#{app_domain}"
     response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE)
     expect(response.code).to be(200)
     expect(response.body).to include('Hello, World!')
