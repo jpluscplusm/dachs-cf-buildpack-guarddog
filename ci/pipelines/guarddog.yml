@@ -2,7 +2,7 @@
 jobs:
 - name: unit-tests
   plan:
-  - get: dachs-cf-buildpack-guarddog
+  - get: master
     trigger: true
   - task: unit-tests
     file: dachs-cf-buildpack-guarddog/ci/unit-test/task.yml
@@ -15,7 +15,7 @@ jobs:
               
 - name: script-tests
   plan:
-  - get: dachs-cf-buildpack-guarddog
+  - get: master
     trigger: true
     passed: [unit-tests]
   - task: script-tests
@@ -27,9 +27,9 @@ jobs:
         channel: {{slack-channel}}
         username: concourse
 
-- name: guarddog-integration-tests
+- name: integration-tests
   plan:
-  - get: dachs-cf-buildpack-guarddog
+  - get: master
     trigger: true
     passed: [script-tests]
   - task: run-integration-tests
@@ -41,9 +41,9 @@ jobs:
       CF_PASSWORD: {{cf_password}}
       CF_ORG: {{cf_org}}
       CF_SPACE: {{cf_space}}
-      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
       CREATE_BUILDPACK: {{create_buildpack}}
+      GIT_BRANCH: master
     on_failure:
       put: slack-notify
       params:
@@ -51,11 +51,11 @@ jobs:
         channel: {{slack-channel}}
         username: concourse
 
-- name: guarddog-system-tests
+- name: system-tests
   plan:
-  - get: dachs-cf-buildpack-guarddog
+  - get: master
     trigger: true
-    passed: [guarddog-integration-tests]
+    passed: [integration-tests]
   - put: acceptance
     params:
       repository: dachs-cf-buildpack-guarddog
@@ -70,6 +70,7 @@ jobs:
       CF_SPACE: {{cf_space}}
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+      GIT_BRANCH: master
     on_success:
         put: slack-notify
         params:
@@ -83,10 +84,27 @@ jobs:
           channel: {{slack-channel}}
           username: concourse
 
+- name: speculative-system-tests
+  plan:
+  - get: speculative
+    trigger: true
+  - task: run-system-tests
+    file: dachs-cf-buildpack-guarddog/ci/system-test/task.yml
+    params:
+      CF_API: {{cf_api}}
+      APP_DOMAIN: {{app_domain}}
+      CF_USERNAME: {{cf_username}}
+      CF_PASSWORD: {{cf_password}}
+      CF_ORG: {{cf_org}}
+      CF_SPACE: {{cf_space}}
+      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
+      GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+      GIT_BRANCH: speculative
+
 - name: promote
   plan:
   - get: acceptance
-    passed: [guarddog-system-tests]
+    passed: [system-tests]
   - put: stable
     params:
       repository: acceptance
@@ -104,7 +122,7 @@ jobs:
           username: concourse
 
 resources:
-- name: dachs-cf-buildpack-guarddog
+- name: master
   type: git
   source:
     uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog
@@ -121,6 +139,11 @@ resources:
     uri: git@github.com:DigitalInnovation/dachs-cf-buildpack-guarddog.git
     branch: stable
     private_key: {{private-repo-key}}
+- name: speculative
+  type: git
+  source:
+    uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog
+    branch: speculative
 - name: slack-notify
   type: slack-notification
   source:

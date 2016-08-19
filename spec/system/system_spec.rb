@@ -11,8 +11,9 @@ describe 'GuardDog with multi-buildpack' do
   let(:space) { ENV.fetch('CF_SPACE') }
   let(:app_domain) { ENV.fetch('APP_DOMAIN') }
   let(:app_name) { "#{language}-guarddog-test-app-#{SecureRandom.uuid}" }
-  let(:multi_buildpack_uri) { ENV.fetch('MULTI_BUILDPACK_URI') }
-  let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
+  let(:git_branch) { ENV.fetch('GIT_BRANCH') }
+  let(:multi_buildpack_uri) { "ENV.fetch('MULTI_BUILDPACK_URI')##{git_branch}" }
+  let(:guarddog_buildpack_uri) { "ENV.fetch('GD_BUILDPACK_URI')##{git_branch}" }
   let(:multi_buildpack_conf_path) { File.join(app_path, '.buildpacks') }
 
 

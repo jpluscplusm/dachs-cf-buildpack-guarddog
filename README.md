@@ -64,8 +64,9 @@ $ CREATE_BUILDPACK=false \
   CF_PASSWORD=admin \
   CF_ORG=pcfdev-org \
   CF_SPACE=pcfdev-space \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git \
+  GIT_BRANCH=master \
   ci/integration-test/run.sh
 ```
 
@@ -80,8 +81,9 @@ $ CF_API=https://api.local.pcfdev.io \
   CF_PASSWORD=admin \
   CF_ORG=pcfdev-org \
   CF_SPACE=pcfdev-space \
-  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git#master \
-  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git#master \
+  MULTI_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-multi.git \
+  GD_BUILDPACK_URI=https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog.git \
+  GIT_BRANCH=master \
   ci/system-test/run.sh
 ```
 

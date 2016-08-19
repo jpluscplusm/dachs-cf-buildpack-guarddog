@@ -60,7 +60,8 @@ describe 'GuardDog buildpack alone' do
   context 'when the buildpack is specified by URI', :if => ENV.fetch("CREATE_BUILDPACK") == "false" do
     let(:org) { ENV.fetch('CF_ORG') }
     let(:space) { ENV.fetch('CF_SPACE') }
-    let(:guarddog_buildpack_uri) { ENV.fetch('GD_BUILDPACK_URI') }
+    let(:git_branch) { ENV.fetch('GIT_BRANCH') }
+    let(:guarddog_buildpack_uri) { "#{ENV.fetch('GD_BUILDPACK_URI')}##{git_branch}" }
 
     it 'can be used' do
       expect_command_to_succeed_and_output("cf api #{cf_api} --skip-ssl-validation", "OK")
