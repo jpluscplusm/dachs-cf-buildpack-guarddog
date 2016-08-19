@@ -67,7 +67,7 @@ describe 'GuardDog buildpack alone' do
 
       expect_command_to_succeed("cf target -o #{org}")
       expect_command_to_succeed("cf target -s #{space}")
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start --no-route")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
