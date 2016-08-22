@@ -57,8 +57,8 @@ describe 'GuardDog with multi-buildpack' do
 
   def write_buildpacks_file(fixture_dir, buildpack_url)
     File.open(multi_buildpack_conf_path, 'w') { |file|
-      file.puts guarddog_buildpack_uri
       file.puts buildpack_url
+      file.puts guarddog_buildpack_uri
     }
   end
 
