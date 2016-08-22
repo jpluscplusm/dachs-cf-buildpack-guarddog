@@ -2,4 +2,4 @@
 
 set -e
 
-echo -e "---\ndefault_process_types:\n  web: ./haproxy -f haproxy.cfg"
+echo -e "---\ndefault_process_types:\n  web: ./mininit.sh"
