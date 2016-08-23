@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PORT=3000 FOO=bar A=B baz & ./haproxy -f haproxy.cfg

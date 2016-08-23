@@ -1,0 +1,5 @@
+---
+config_vars:
+
+default_process_types:
+  web: baz

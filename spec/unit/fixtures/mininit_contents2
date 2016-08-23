@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PORT=3000 baz & ./haproxy -f haproxy.cfg
