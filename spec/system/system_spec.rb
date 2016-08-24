@@ -85,12 +85,12 @@ describe 'GuardDog with multi-buildpack' do
     expect_command_to_succeed("cf start #{app_name}")
 
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
-    expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", '.guarddog')
+    expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
   end
 
   def start_dea_app(app_path)
     expect_command_to_succeed("cf start #{app_name}")
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
-    expect_command_to_succeed_and_output("cf files #{app_name} app/", '.guarddog')
+    expect_command_to_succeed_and_output("cf files #{app_name} app/", 'haproxy')
   end
 end
