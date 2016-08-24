@@ -1,6 +1,0 @@
----
-config_vars:
-  FOO: bar
-  A: B
-default_process_types:
-  web: ./caddy -port 3000

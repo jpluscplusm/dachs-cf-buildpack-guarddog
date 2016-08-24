@@ -49,7 +49,7 @@ describe 'GuardDog buildpack alone' do
     end
 
     it 'runs apps with haproxy' do
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/starting-app")
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       expect_hap_to_require_basic_auth
@@ -76,7 +76,7 @@ describe 'GuardDog buildpack alone' do
     end
 
     it 'runs apps with haproxy' do
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app -b #{guarddog_buildpack_uri}")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/starting-app -b #{guarddog_buildpack_uri}")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
