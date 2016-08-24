@@ -47,6 +47,7 @@ Alternatively use the [dachs-cf-docker](https://github.com/DigitalInnovation/dac
 
 ```
 $ CREATE_BUILDPACK=true \
+  APP_DOMAIN=local.pcfdev.io \
   CF_API=https://api.local.pcfdev.io \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
@@ -59,6 +60,7 @@ On remote CI the changes will already have been committed and be accessible via 
 
 ```
 $ CREATE_BUILDPACK=false \
+  APP_DOMAIN=local.pcfdev.io \
   CF_API=https://api.local.pcfdev.io \
   CF_USERNAME=admin \
   CF_PASSWORD=admin \
