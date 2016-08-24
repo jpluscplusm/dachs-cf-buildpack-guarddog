@@ -3,8 +3,11 @@ require 'tmpdir'
 
 describe 'bin/compile' do
 
+  current_dir = File.dirname(__FILE__)
+
   before(:all) do
     @app_dir = Dir.mktmpdir('app')
+    FileUtils.cp("#{current_dir}/fixtures/app_release.out", "#{@app_dir}/app_release.out")
     @cache_dir = File.join(Dir.tmpdir, ('guarddog-cache'))
     @guarddog_file = File.join(@app_dir, '.guarddog')
     @haproxy = File.join(@app_dir, 'haproxy')
@@ -13,6 +16,7 @@ describe 'bin/compile' do
 
   after(:all) do
     FileUtils.rm_rf(@app_dir)
+    FileUtils.rm("mininit.sh")
   end
 
   it 'writes the .guarddog file' do

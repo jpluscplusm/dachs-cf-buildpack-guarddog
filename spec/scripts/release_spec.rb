@@ -5,6 +5,6 @@ describe 'bin/release' do
   end
 
   it 'returns a command to loop indefinitely with caning the CPU' do
-    expect(`bin/release`).to eq("---\ndefault_process_types:\n  web: ./haproxy -f haproxy.cfg\n")
+    expect(`bin/release`).to eq("---\ndefault_process_types:\n  web: ./mininit.sh\n")
   end
 end
