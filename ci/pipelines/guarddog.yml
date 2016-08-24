@@ -60,6 +60,9 @@ jobs:
     resource: master
     trigger: true
     passed: [integration-tests]
+  - get: dachs-cf-buildpack-multi
+    resource: buildpack-multi
+    trigger: true
   - put: acceptance
     params:
       repository: dachs-cf-buildpack-guarddog
@@ -153,6 +156,11 @@ resources:
   type: slack-notification
   source:
     url: {{slack-notify-webhook}}
+- name: buildpack-multi
+  type: git
+  source:
+    uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-multi
+    branch: master
 
 resource_types:
 - name: slack-notification
