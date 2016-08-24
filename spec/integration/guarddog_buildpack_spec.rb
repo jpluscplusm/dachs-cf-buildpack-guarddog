@@ -47,9 +47,7 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
       expect_command_to_succeed("cf target -s #{space}")
 
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app --no-start")
-      expect_command_to_succeed("cf set-health-check #{app_name} none")
-      expect_command_to_succeed("cf start #{app_name}")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app")
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       expect_hap_to_require_basic_auth
@@ -69,15 +67,12 @@ describe 'GuardDog buildpack alone' do
 
       expect_command_to_succeed("cf target -o #{org}")
       expect_command_to_succeed("cf target -s #{space}")
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app -b #{guarddog_buildpack_uri} --no-start")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app -b #{guarddog_buildpack_uri}")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
-        expect_command_to_succeed("cf set-health-check #{app_name} none")
-        expect_command_to_succeed("cf start #{app_name}")
         expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       else
-        expect_command_to_succeed("cf start #{app_name}")
         expect_command_to_succeed_and_output("cf files #{app_name} app/", 'haproxy')
       end
 
