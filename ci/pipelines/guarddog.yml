@@ -10,10 +10,10 @@ jobs:
     on_failure:
       put: slack-notify
       params:
-        text: "unit-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/unit-tests"
+        text: ":dachshund_snooty: :boom: unit-tests job failed! :boom:\n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/unit-tests :construction:"
         channel: {{slack-channel}}
         username: concourse
-              
+
 - name: script-tests
   plan:
   - get: dachs-cf-buildpack-guarddog
@@ -25,7 +25,7 @@ jobs:
     on_failure:
       put: slack-notify
       params:
-        text: "scrip-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/script-tests"
+        text: ":dachshund_snooty: :boom: scrip-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/script-tests :construction:"
         channel: {{slack-channel}}
         username: concourse
 
@@ -50,7 +50,7 @@ jobs:
     on_failure:
       put: slack-notify
       params:
-        text: "guarddog-integration-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests"
+        text: ":dachshund_snooty: :boom: guarddog-integration-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests :construction:"
         channel: {{slack-channel}}
         username: concourse
 
@@ -87,7 +87,7 @@ jobs:
     on_failure:
         put: slack-notify
         params:
-          text: "guarddog-system-tests job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests"
+          text: ":dachshund_snooty: :boom: guarddog-system-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests :construction: "
           channel: {{slack-channel}}
           username: concourse
 
@@ -125,7 +125,7 @@ jobs:
     on_failure:
         put: slack-notify
         params:
-          text: "Guarddog promote job failed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/promote"
+          text: ":dachshund_snooty: :boom: Guarddog promote job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/promote :construction: "
           channel: {{slack-channel}}
           username: concourse
 
