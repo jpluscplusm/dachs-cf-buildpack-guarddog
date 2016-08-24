@@ -34,7 +34,7 @@ describe 'GuardDog buildpack alone' do
        `cf delete-org -f #{org}` rescue nil
     end
 
-    it 'can be created' do
+    it 'runs apps with haproxy' do
       expect_command_to_succeed("buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml")
       expect(File).to exist(filename)
 
@@ -51,7 +51,7 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed("cf set-health-check #{app_name} none")
       expect_command_to_succeed("cf start #{app_name}")
 
-      expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", '.guarddog')
+      expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
     end
@@ -63,7 +63,7 @@ describe 'GuardDog buildpack alone' do
     let(:git_branch) { ENV.fetch('GIT_BRANCH') }
     let(:guarddog_buildpack_uri) { "#{ENV.fetch('GD_BUILDPACK_URI')}##{git_branch}" }
 
-    it 'can be used' do
+    it 'runs apps with haproxy' do
       expect_command_to_succeed_and_output("cf api #{cf_api} --skip-ssl-validation", "OK")
       expect_command_to_succeed_and_output("cf auth #{cf_username} #{cf_password}", "Authenticating...\nOK")
 
@@ -75,10 +75,10 @@ describe 'GuardDog buildpack alone' do
       if app_info.include? '"diego": true'
         expect_command_to_succeed("cf set-health-check #{app_name} none")
         expect_command_to_succeed("cf start #{app_name}")
-        expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", '.guarddog')
+        expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       else
         expect_command_to_succeed("cf start #{app_name}")
-        expect_command_to_succeed_and_output("cf files #{app_name} app/", '.guarddog')
+        expect_command_to_succeed_and_output("cf files #{app_name} app/", 'haproxy')
       end
 
       expect_hap_to_require_basic_auth
