@@ -1,4 +1,4 @@
 #!/bin/bash
 
-bundle install
+bundle install --local
 bundle exec rake spec:unit
