@@ -47,7 +47,7 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
       expect_command_to_succeed("cf target -s #{space}")
 
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app --no-start")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app --no-start")
       expect_command_to_succeed("cf set-health-check #{app_name} none")
       expect_command_to_succeed("cf start #{app_name}")
 
@@ -69,7 +69,7 @@ describe 'GuardDog buildpack alone' do
 
       expect_command_to_succeed("cf target -o #{org}")
       expect_command_to_succeed("cf target -s #{space}")
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/app -b #{guarddog_buildpack_uri} --no-start")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app -b #{guarddog_buildpack_uri} --no-start")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
