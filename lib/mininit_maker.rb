@@ -10,9 +10,21 @@ class MininitMaker
 
   def create
     mininit = File.new("mininit.sh", "wb")
-    
-    mininit.puts("#!/bin/bash\n\n")
-    mininit.puts("#{app_command} & #{hap_command}")
+
+    contents = <<-EOF
+#!/bin/bash
+
+set -e
+
+#{app_command} &
+
+while ! nc -z localhost #{FORCED_PORT}; do
+  sleep 0.2
+done
+
+#{hap_command}
+EOF
+    mininit.puts(contents)
     mininit.close
   end
 

@@ -29,12 +29,7 @@ describe 'GuardDog buildpack alone' do
   end
 
   context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
-    after(:each) do
-       `cf delete-buildpack -f guarddog` rescue nil
-       `cf delete-org -f #{org}` rescue nil
-    end
-
-    it 'runs apps with haproxy' do
+    before(:each) do
       expect_command_to_succeed("buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml")
       expect(File).to exist(filename)
 
@@ -46,12 +41,23 @@ describe 'GuardDog buildpack alone' do
       expect_command_to_succeed("cf target -o #{org}")
       expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
       expect_command_to_succeed("cf target -s #{space}")
+    end
 
+    after(:each) do
+       `cf delete-buildpack -f guarddog` rescue nil
+       `cf delete-org -f #{org}` rescue nil
+    end
+
+    it 'runs apps with haproxy' do
       expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app")
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
+    end
+
+    it 'fails if the app does not bind to a port' do
+      expect_command_to_fail_and_output("cf push #{app_name} -p spec/integration/fixtures/app -t 10", "Start app timeout")
     end
   end
 
@@ -61,12 +67,15 @@ describe 'GuardDog buildpack alone' do
     let(:git_branch) { ENV.fetch('GIT_BRANCH') }
     let(:guarddog_buildpack_uri) { "#{ENV.fetch('GD_BUILDPACK_URI')}##{git_branch}" }
 
-    it 'runs apps with haproxy' do
+    before(:each) do
       expect_command_to_succeed_and_output("cf api #{cf_api} --skip-ssl-validation", "OK")
       expect_command_to_succeed_and_output("cf auth #{cf_username} #{cf_password}", "Authenticating...\nOK")
 
       expect_command_to_succeed("cf target -o #{org}")
       expect_command_to_succeed("cf target -s #{space}")
+    end
+
+    it 'runs apps with haproxy' do
       expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/caddy-app -b #{guarddog_buildpack_uri}")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
@@ -78,6 +87,10 @@ describe 'GuardDog buildpack alone' do
 
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
+    end
+
+    it 'fails if the app does not bind to a port' do
+      expect_command_to_fail_and_output("cf push #{app_name} -p spec/integration/fixtures/app -t 10", "Start app timeout")
     end
   end
 

@@ -1,3 +1,11 @@
 #!/bin/bash
 
-PORT=3000 baz & ./haproxy -f haproxy.cfg
+set -e
+
+PORT=3000 baz &
+
+while ! nc -z localhost 3000; do
+  sleep 0.2
+done
+
+./haproxy -f haproxy.cfg

@@ -3,4 +3,4 @@ config_vars:
   FOO: bar
   A: B
 default_process_types:
-  web: baz
+  web: ./caddy -port 3000
