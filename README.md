@@ -109,7 +109,7 @@ $ fly -t lite set-pipeline \
   --pipeline guarddog \
   --config ci/pipelines/guarddog.yml \
   --var "private-repo-key=$(cat ~/.ssh/id_rsa)" \
-  --load-vars-from ci/vars/global.yml \
+  --load-vars-from ci/vars/local.yml \
   --var create_buildpack=true
 ```
 
