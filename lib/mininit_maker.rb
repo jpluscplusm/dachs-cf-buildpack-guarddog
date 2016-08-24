@@ -2,7 +2,7 @@ require 'yaml'
 
 class MininitMaker
 
-  PORT = 3000
+  FORCED_PORT = 3000
 
   def initialize(app_release)
     @app_release = app_release
@@ -24,9 +24,9 @@ private
 
     config_vars = parse_config(yaml["config_vars"])
     raw_command = parse_command(yaml["default_process_types"])
-    command = raw_command.gsub(/\$PORT/, "#{PORT}")
+    command = raw_command.gsub(/\$PORT/, "#{FORCED_PORT}")
     
-    "PORT=#{PORT} #{config_vars}#{command}"
+    "PORT=#{FORCED_PORT} #{config_vars}#{command}"
   end
 
   def parse_config(vars)
