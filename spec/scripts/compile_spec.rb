@@ -9,18 +9,17 @@ describe 'bin/compile' do
     @app_dir = Dir.mktmpdir('app')
     FileUtils.cp("#{current_dir}/fixtures/app_release.out", "#{@app_dir}/app_release.out")
     @cache_dir = File.join(Dir.tmpdir, ('guarddog-cache'))
-    @guarddog_file = File.join(@app_dir, '.guarddog')
+    @mininit_file = File.join(@app_dir, 'mininit.sh')
     @haproxy = File.join(@app_dir, 'haproxy')
     system("ruby bin/compile #{@app_dir} #{@cache_dir}")
   end
 
   after(:all) do
     FileUtils.rm_rf(@app_dir)
-    FileUtils.rm("mininit.sh")
   end
 
-  it 'writes the .guarddog file' do
-    expect(File.exists?(@guarddog_file)).to be_truthy
+  it 'writes the mininit.sh file' do
+    expect(File.exists?(@mininit_file)).to be_truthy
   end
 
   it 'downloads haproxy' do

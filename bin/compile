@@ -11,8 +11,6 @@ cache_dir = ARGV[1]
 # In staging, app_dir exists, but cache does not despite being passed as an arg
 FileUtils.mkdir_p(cache_dir)
 
-FileUtils.touch(File.join(app_dir, '.guarddog'))
-
 destination = File.join(app_dir, 'haproxy')
 Downloader.download('s3-eu-west-1.amazonaws.com', '/dachs-haproxy-build/haproxy', destination)
 
