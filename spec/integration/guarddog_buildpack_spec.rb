@@ -90,7 +90,7 @@ describe 'GuardDog buildpack alone' do
     end
 
     it 'fails if the app does not bind to a port' do
-      expect_command_to_fail_and_output("cf push #{app_name} -p spec/integration/fixtures/app -t 10", "Start app timeout")
+      expect_command_to_fail_and_output("cf push #{app_name} -p spec/integration/fixtures/app -t 10 -b #{guarddog_buildpack_uri}", "Start app timeout")
     end
   end
 
