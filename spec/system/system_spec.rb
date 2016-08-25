@@ -54,19 +54,25 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
       
-      expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
+      expect{ 
+        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      }.to raise_error(RestClient::BadGateway)
+
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
       
-      Wait.until!(default_timeout_in_seconds: 30) {
+      Wait.until!(timeout_in_seconds: 120) {
         200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
       }
 
       expect_app_returns_hello_world
 
-      expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/exit", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
+      expect{
+        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/exit", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      }.to raise_error(RestClient::InternalServerError)
+
       output = `cf events #{app_name}`
       expect($?.success?).to be_truthy
-      expect(output,scan('app.crash').size).to eq(2)
+      expect(output.scan('app.crash').size).to eq(2)
     end
   end
 
