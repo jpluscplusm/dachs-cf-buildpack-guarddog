@@ -35,7 +35,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'python' }
     let(:app_path) { 'spec/system/fixtures/hello-python-web' }
 
-    it 'allows regular apps to run whilst still providing .guarddog file' do
+    it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
       expect_app_requires_basic_auth
@@ -47,7 +47,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
-    it 'allows a ruby app to run whilst providing a .guarddog file' do
+    it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
       expect_app_requires_basic_auth
