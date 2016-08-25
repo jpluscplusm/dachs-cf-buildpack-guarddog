@@ -52,7 +52,18 @@ describe 'GuardDog with multi-buildpack' do
       push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
-      expect_crashed_app_to_be_unhealthy
+      
+      expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
+      expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
+      
+      sleep 5
+
+      expect_app_returns_hello_world
+
+      expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/exit", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
+      output = `cf events #{app_name}`
+      expect($?.success?).to be_truthy
+      expect(output,scan('app.crash').size).to eq(2)
     end
   end
 
@@ -79,11 +90,6 @@ describe 'GuardDog with multi-buildpack' do
     response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
     expect(response.code).to be(200)
     expect(response.body).to include('Hello, World!')
-  end
-
-  def expect_crashed_app_to_be_unhealthy
-    expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
-    expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
   end
 
   def start_diego_app(app_path)
