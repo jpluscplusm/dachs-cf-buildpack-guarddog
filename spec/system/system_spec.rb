@@ -2,6 +2,7 @@ require 'fileutils'
 require 'rest-client'
 require 'securerandom'
 require 'tmpdir'
+require 'wait_until'
 
 describe 'GuardDog with multi-buildpack' do
   let(:cf_api) { ENV.fetch('CF_API') }
@@ -56,7 +57,9 @@ describe 'GuardDog with multi-buildpack' do
       expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
       
-      sleep 5
+      Wait.until!(default_timeout_in_seconds: 30) {
+        200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
+      }
 
       expect_app_returns_hello_world
 
