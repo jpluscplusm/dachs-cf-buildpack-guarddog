@@ -83,7 +83,7 @@ describe 'GuardDog with multi-buildpack' do
 
   def expect_crashed_app_to_be_unhealthy
     expect{ RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar') }.to raise_error(RestClient::BadGateway)
-    expect_command_to_succeed_and_output("cf app #{app_name}", 'crashed')
+    expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
   end
 
   def start_diego_app(app_path)
