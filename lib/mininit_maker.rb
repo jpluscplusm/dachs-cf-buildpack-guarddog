@@ -22,7 +22,12 @@ while ! nc -z localhost #{FORCED_PORT}; do
   sleep 0.2
 done
 
-#{hap_command}
+#{hap_command} &
+
+wait -n
+
+echo Terminating due to a child process exiting
+
 EOF
     mininit.puts(contents)
     mininit.close
