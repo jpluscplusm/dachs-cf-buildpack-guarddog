@@ -77,6 +77,7 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   context 'when pushing a slow Ruby app' do
+    let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
 
     it "doesn't queue requests in HAProxy" do
