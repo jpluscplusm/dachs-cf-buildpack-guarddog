@@ -73,6 +73,17 @@ describe 'GuardDog with multi-buildpack' do
     end
   end
 
+  context 'when pushing a slow Ruby app' do
+    let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
+
+    it "doesn't queue requests in HAProxy" do
+      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
+      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=0", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      expect(response.body).to eq('I slept!')
+    end
+  end
+
   def write_buildpacks_file(fixture_dir, buildpack_url)
     File.open(multi_buildpack_conf_path, 'w') { |file|
       file.puts buildpack_url
