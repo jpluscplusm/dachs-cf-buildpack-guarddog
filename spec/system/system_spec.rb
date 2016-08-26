@@ -51,13 +51,13 @@ describe 'GuardDog with multi-buildpack' do
       push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
-      
-      expect{ 
+
+      expect{
         RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
       }.to raise_error(RestClient::BadGateway)
 
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
-      
+
       Wait.until!(timeout_in_seconds: 120) {
         200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
       }
@@ -71,6 +71,17 @@ describe 'GuardDog with multi-buildpack' do
       output = `cf events #{app_name}`
       expect($?.success?).to be_truthy
       expect(output.scan('app.crash').size).to eq(2)
+    end
+  end
+
+  context 'when pushing a slow Ruby app' do
+    let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
+
+    it "doesn't queue requests in HAProxy" do
+      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
+      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=0", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      expect(response.body).to eq('I slept!')
     end
   end
 
