@@ -33,7 +33,6 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   context 'when pushing a Python app' do
-    let(:language) { 'python' }
     let(:app_path) { 'spec/system/fixtures/hello-python-web' }
 
     it 'runs the app behind HAProxy' do
@@ -45,7 +44,6 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   context 'when pushing a Ruby app' do
-    let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
     it 'runs the app behind HAProxy' do
