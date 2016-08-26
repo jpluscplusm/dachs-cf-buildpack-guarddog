@@ -38,7 +38,7 @@ describe 'GuardDog with multi-buildpack' do
 
     it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
-      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
     end
@@ -50,7 +50,7 @@ describe 'GuardDog with multi-buildpack' do
 
     it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
-      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
 
@@ -117,14 +117,14 @@ describe 'GuardDog with multi-buildpack' do
     expect(response.body).to include('Hello, World!')
   end
 
-  def start_diego_app(app_path)
+  def start_diego_app
     expect_command_to_succeed("cf set-health-check #{app_name} none")
     expect_command_to_succeed("cf start #{app_name}")
 
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
   end
 
-  def start_dea_app(app_path)
+  def start_dea_app
     expect_command_to_succeed("cf start #{app_name}")
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
   end
