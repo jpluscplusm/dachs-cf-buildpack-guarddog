@@ -36,7 +36,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'python' }
     let(:app_path) { 'spec/system/fixtures/hello-python-web' }
 
-    xit 'runs the app behind HAProxy' do
+    it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
@@ -48,7 +48,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
-    xit 'runs the app behind HAProxy' do
+    it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
@@ -67,24 +67,24 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_returns_hello_world
 
       expect{
+        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/kill-haproxy", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      }.to raise_error(RestClient::BadGateway)
+
+      expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
+
+      Wait.until!(timeout_in_seconds: 120) {
+        200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
+      }
+
+      expect_app_returns_hello_world
+
+      expect{
         RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/exit", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
       }.to raise_error(RestClient::InternalServerError)
 
       output = `cf events #{app_name}`
       expect($?.success?).to be_truthy
-      expect(output.scan('app.crash').size).to eq(2)
-    end
-  end
-
-  context 'when good dogs go bad' do
-    let(:language) { 'ruby' }
-    let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
-
-    it "crashes when haproxy crashes" do
-      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
-      push_and_crash? ? start_diego_app : start_dea_app
-      # expect_command_to_succeed_and_output("cf events #{app_name}", "CRASHED")
-      `cf events #{app_name}`
+      expect(output.scan('app.crash').size).to eq(3)
     end
   end
 
@@ -102,7 +102,7 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   def push_and_crash?
-    expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start -c './mininit.sh & while ! nc -z localhost $PORT; do sleep 0.2; done; sleep 5'")
+    expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start -c './mininit.sh & while ! nc -z localhost $PORT; do sleep 0.2; done; sleep 5; pkill -f haproxy; sleep inf'")
     app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
     app_info.include? '"diego": true'
   end
