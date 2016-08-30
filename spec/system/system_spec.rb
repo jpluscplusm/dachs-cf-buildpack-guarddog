@@ -54,34 +54,19 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
 
-      expect{
-        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
-      }.to raise_error(RestClient::BadGateway)
-
+      execute_post_and_expect("crash", RestClient::BadGateway)
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
 
-      Wait.until!(timeout_in_seconds: 120) {
-        200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
-      }
-
+      wait_for_app_recovery
       expect_app_returns_hello_world
 
-      expect{
-        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/kill-haproxy", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
-      }.to raise_error(RestClient::BadGateway)
-
+      execute_post_and_expect("kill-haproxy", RestClient::BadGateway)
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
 
-      Wait.until!(timeout_in_seconds: 120) {
-        200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
-      }
-
+      wait_for_app_recovery
       expect_app_returns_hello_world
 
-      expect{
-        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/exit", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
-      }.to raise_error(RestClient::InternalServerError)
-
+      execute_post_and_expect("exit", RestClient::InternalServerError)
       output = `cf events #{app_name}`
       expect($?.success?).to be_truthy
       expect(output.scan('app.crash').size).to eq(3)
@@ -128,5 +113,17 @@ describe 'GuardDog with multi-buildpack' do
   def start_dea_app
     expect_command_to_succeed("cf start #{app_name}")
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
+  end
+
+  def wait_for_app_recovery
+    Wait.until!(timeout_in_seconds: 120) {
+        200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
+    }
+  end
+
+  def execute_post_and_expect(path, exception)
+    expect{
+        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/#{path}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      }.to raise_error(exception)
   end
 end
