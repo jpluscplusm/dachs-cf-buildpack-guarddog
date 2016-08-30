@@ -37,7 +37,7 @@ describe 'GuardDog with multi-buildpack' do
 
     it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
-      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
     end
@@ -48,16 +48,16 @@ describe 'GuardDog with multi-buildpack' do
 
     it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
-      push_and_check_if_diego? ? start_diego_app(app_path) : start_dea_app(app_path)
+      push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
-      
-      expect{ 
+
+      expect{
         RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/crash", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
       }.to raise_error(RestClient::BadGateway)
 
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
-      
+
       Wait.until!(timeout_in_seconds: 120) {
         200 == RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar').code
       }
@@ -74,6 +74,16 @@ describe 'GuardDog with multi-buildpack' do
     end
   end
 
+  context 'when good dogs go bad' do
+    let(:language) { 'ruby' }
+    let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
+
+    it "crashes when haproxy crashes" do
+      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
+      push_and_crash? ? start_diego_app : start_dea_app
+    end
+  end
+
   def write_buildpacks_file(fixture_dir, buildpack_url)
     File.open(multi_buildpack_conf_path, 'w') { |file|
       file.puts buildpack_url
@@ -83,6 +93,12 @@ describe 'GuardDog with multi-buildpack' do
 
   def push_and_check_if_diego?
     expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start")
+    app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
+    app_info.include? '"diego": true'
+  end
+
+  def push_and_crash?
+    expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start -c './mininit.sh ; sleep 1 ; pkill -f haproxy' ")
     app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
     app_info.include? '"diego": true'
   end
@@ -99,14 +115,14 @@ describe 'GuardDog with multi-buildpack' do
     expect(response.body).to include('Hello, World!')
   end
 
-  def start_diego_app(app_path)
+  def start_diego_app
     expect_command_to_succeed("cf set-health-check #{app_name} none")
     expect_command_to_succeed("cf start #{app_name}")
 
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
   end
 
-  def start_dea_app(app_path)
+  def start_dea_app
     expect_command_to_succeed("cf start #{app_name}")
     expect_command_to_succeed_and_output("cf app #{app_name}", "buildpack: #{multi_buildpack_uri}")
   end
