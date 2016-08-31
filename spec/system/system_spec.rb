@@ -77,7 +77,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
-    it "doesn't queue requests in HAProxy" do
+    it "accepts a single request and sleeps" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=0", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
