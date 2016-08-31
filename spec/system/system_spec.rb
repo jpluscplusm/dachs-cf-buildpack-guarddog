@@ -27,7 +27,7 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   after(:each) do
-    `cf delete -f #{app_name}`
+    # `cf delete -f #{app_name}`
     FileUtils.rm_rf @cf_home
     FileUtils.rm_rf multi_buildpack_conf_path
   end
@@ -36,7 +36,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'python' }
     let(:app_path) { 'spec/system/fixtures/hello-python-web' }
 
-    it 'runs the app behind HAProxy' do
+    xit 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
@@ -48,7 +48,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
-    it 'runs the app behind HAProxy' do
+    xit 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
@@ -75,11 +75,12 @@ describe 'GuardDog with multi-buildpack' do
 
   context 'when pushing a slow Ruby app' do
     let(:language) { 'ruby' }
-    let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
+    let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
     it "doesn't queue requests in HAProxy" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
+      puts "https://#{app_name}.#{app_domain}/slow?delay=0"
       response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=0", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
       expect(response.body).to eq('I slept!')
     end
