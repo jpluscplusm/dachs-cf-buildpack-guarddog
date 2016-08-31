@@ -36,7 +36,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'python' }
     let(:app_path) { 'spec/system/fixtures/hello-python-web' }
 
-    it 'runs the app behind HAProxy' do
+    xit 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/python-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
@@ -48,7 +48,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
-    it 'runs the app behind HAProxy' do
+    xit 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
@@ -77,11 +77,18 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
 
+    write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
+    push_and_check_if_diego? ? start_diego_app : start_dea_app
+
     it "accepts a single request and sleeps" do
-      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
-      push_and_check_if_diego? ? start_diego_app : start_dea_app
-      response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=0", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+      response = make_slow_request(0)
       expect(response.body).to eq('I slept!')
+    end
+
+    it "queues the second request" do
+      response1 = make_slow_request(10)
+      response2 = make_slow_request(10)
+      expect(response1.body).to eq('I slept!')
     end
   end
 
@@ -137,5 +144,9 @@ describe 'GuardDog with multi-buildpack' do
     expect{
         RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/#{path}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
       }.to raise_error(exception)
+  end
+
+  def make_slow_request(delay)
+    RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=#{delay}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
   end
 end
