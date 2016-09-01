@@ -80,23 +80,22 @@ describe 'GuardDog with multi-buildpack' do
     it "returns a 503" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       diego = push_and_check_if_diego?
-      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 40s")
+      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
       diego ? start_diego_app : start_dea_app
 
       thread = Thread.new do
-        response = make_slow_request(50)
+        response = make_slow_request(25)
         expect(response.body).to eq('I slept!')
       end
 
       # Saw race conditions where request in separate thread was processed after
       # request in main thread below
-      Wait.until_true!(timeout_in_seconds: 2) {
+      Wait.until_true!(timeout_in_seconds: 3) {
         thread.status == 'sleep'
       }
 
       response = make_slow_request(0)
-
-      expect(response.code).to eq(503)
+      expect(response).to eq(503)
     end
   end
 
@@ -155,6 +154,7 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   def make_slow_request(delay)
-    RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=#{delay}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+    code = `curl -so/dev/null --user foo:bar -w %{http_code} -k https://#{app_name}.#{app_domain}/slow?delay=#{delay}`
+    code.to_i
   end
 end
