@@ -6,4 +6,4 @@
 	url = https://github.com/DigitalInnovation/ruby-hello-world.git
 [submodule "spec/system/fixtures/ruby-slow-app"]
 	path = spec/system/fixtures/ruby-slow-app
-	url = https://github.com/EngineerBetter/ruby-slow-app.git
+	url = https://github.com/DigitalInnovation/ruby-slow-app.git
