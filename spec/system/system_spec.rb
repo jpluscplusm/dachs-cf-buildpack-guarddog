@@ -73,16 +73,18 @@ describe 'GuardDog with multi-buildpack' do
     end
   end
 
-  context 'when pushing a slow Ruby app' do
+  context 'when the app cannot return a response before the configured timeout' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
 
-    it "accepts a single request and sleeps" do
+    it "returns a 503" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
-      push_and_check_if_diego? ? start_diego_app : start_dea_app
+      diego = push_and_check_if_diego?
+      `cf set-env #{app_name} TIMEOUT 45`
+      diego ? start_diego_app : start_dea_app
 
       thread = Thread.new do
-        response = make_slow_request(5)
+        response = make_slow_request(50)
         expect(response.body).to eq('I slept!')
       end
 
@@ -92,12 +94,9 @@ describe 'GuardDog with multi-buildpack' do
         thread.status == 'sleep'
       }
 
-      beforeGet = Time.now
       response = make_slow_request(0)
-      afterGet = Time.now
 
-      expect(response.body).to eq('I slept!')
-      expect(afterGet - beforeGet).to be > 4
+      expect(response.code).to eq(503)
     end
   end
 
