@@ -80,7 +80,7 @@ describe 'GuardDog with multi-buildpack' do
     it "returns a 503" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       diego = push_and_check_if_diego?
-      `cf set-env #{app_name} TIMEOUT 45`
+      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 40s")
       diego ? start_diego_app : start_dea_app
 
       thread = Thread.new do
