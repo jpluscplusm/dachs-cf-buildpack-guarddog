@@ -49,11 +49,17 @@ describe 'GuardDog buildpack alone' do
     end
 
     it 'runs apps with haproxy' do
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/starting-app")
+      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/starting-app --no-start")
+      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT 10")
+      expect_command_to_succeed("cf start #{app_name}")
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
+
+      expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')}.to raise_error { |error|
+        expect(error.response.code).to be(503)
+      }
     end
 
     it 'fails if the app does not bind to a port' do
