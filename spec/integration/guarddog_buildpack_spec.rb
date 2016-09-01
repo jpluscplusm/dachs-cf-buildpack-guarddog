@@ -4,53 +4,66 @@ require 'securerandom'
 require 'tmpdir'
 
 describe 'GuardDog buildpack alone' do
+  let(:skip_setup) { ENV.fetch('SKIP_SETUP', false) }
+  let(:skip_teardown) { ENV.fetch('SKIP_TEARDOWN', false) }
   let(:version) { File.open('VERSION').read }
-  let(:filename) { "guarddog_buildpack-cached-v#{version}.zip" }
+  let(:buildpack_filename) { "guarddog_buildpack-cached-v#{version}.zip" }
   let(:cf_api) { ENV.fetch('CF_API') }
   let(:app_domain) { ENV.fetch('APP_DOMAIN') }
   let(:cf_username) { ENV.fetch('CF_USERNAME') }
   let(:cf_password) { ENV.fetch('CF_PASSWORD') }
-  let(:app_name) { "guarddog-#{SecureRandom.uuid}" }
+  let(:app_name) { ENV.fetch('CF_APP', "guarddog-#{SecureRandom.uuid}") }
   let(:cf_home) { Dir.mktmpdir }
-  let(:org) { app_name }
-  let(:space) { app_name }
+  let(:org) { ENV.fetch('CF_ORG', app_name) }
+  let(:space) { ENV.fetch('CF_SPACE', app_name) }
 
   before(:each) do
     ENV['CF_HOME'] = cf_home
     `cf`
     expect($?.success?).to be_truthy, 'CF CLI should be available'
-    expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
+    unless skip_setup
+      expect(`cf buildpacks`).to_not include('guarddog'), 'Buildpack should not exist before test'
+    end
   end
 
   after(:each) do
-    `cf delete -f #{app_name}` rescue nil
-    File.delete(filename) rescue nil
+    unless skip_teardown
+      `cf delete -f #{app_name}` rescue nil
+      File.delete(buildpack_filename) rescue nil
+    end
+
     FileUtils.rm_rf(cf_home)
   end
 
   context 'when the buildpack is packaged', :if => ENV.fetch("CREATE_BUILDPACK") == "true"  do
     before(:each) do
-      expect_command_to_succeed("buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml")
-      expect(File).to exist(filename)
-
       expect_command_to_succeed("cf api #{cf_api} --skip-ssl-validation")
       expect_command_to_succeed_and_output("cf auth #{cf_username} #{cf_password}", "Authenticating...\nOK")
-      expect_command_to_succeed("cf create-buildpack guarddog #{filename} 999 --enable")
 
-      expect_command_to_succeed_and_output("cf create-org #{org}", 'OK')
+      unless skip_setup
+        expect_command_to_succeed("buildpack-packager --cached --use-custom-manifest spec/integration/fixtures/buildpack-manifest.yml")
+        expect(File).to exist(buildpack_filename)
+
+        expect_command_to_succeed("cf create-buildpack guarddog #{buildpack_filename} 999 --enable")
+
+        expect_command_to_succeed_and_output("cf create-org #{org}", 'OK')
+        expect_command_to_succeed_and_output("cf create-space #{space} -o #{org}", 'OK')
+      end
+
       expect_command_to_succeed("cf target -o #{org}")
-      expect_command_to_succeed_and_output("cf create-space #{space}", 'OK')
       expect_command_to_succeed("cf target -s #{space}")
     end
 
     after(:each) do
-       `cf delete-buildpack -f guarddog` rescue nil
-       `cf delete-org -f #{org}` rescue nil
+      unless skip_teardown
+        `cf delete-buildpack -f guarddog` rescue nil
+        `cf delete-org -f #{org}` rescue nil
+      end
     end
 
     it 'runs apps with haproxy' do
       expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/starting-app --no-start")
-      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT 10")
+      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 10s")
       expect_command_to_succeed("cf start #{app_name}")
 
       expect_command_to_succeed_and_output("cf ssh #{app_name} --command \"ls -la app/\"", 'haproxy')
