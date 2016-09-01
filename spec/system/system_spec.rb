@@ -75,13 +75,29 @@ describe 'GuardDog with multi-buildpack' do
 
   context 'when pushing a slow Ruby app' do
     let(:language) { 'ruby' }
-    let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
+    let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
 
     it "accepts a single request and sleeps" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       push_and_check_if_diego? ? start_diego_app : start_dea_app
+
+      thread = Thread.new do
+        response = make_slow_request(5)
+        expect(response.body).to eq('I slept!')
+      end
+
+      # Saw race conditions where request in separate thread was processed after
+      # request in main thread below
+      Wait.until_true!(timeout_in_seconds: 2) {
+        thread.status == 'sleep'
+      }
+
+      beforeGet = Time.now
       response = make_slow_request(0)
+      afterGet = Time.now
+
       expect(response.body).to eq('I slept!')
+      expect(afterGet - beforeGet).to be > 4
     end
   end
 
