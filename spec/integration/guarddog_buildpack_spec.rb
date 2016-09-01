@@ -92,7 +92,9 @@ describe 'GuardDog buildpack alone' do
     end
 
     it 'runs apps with haproxy' do
-      expect_command_to_succeed("cf push #{app_name} -p spec/integration/fixtures/starting-app -b #{guarddog_buildpack_uri}")
+      expect_command_to_succeed("cf push #{app_name} --no-start -p spec/integration/fixtures/starting-app -b #{guarddog_buildpack_uri}")
+      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 10s")
+      expect_command_to_succeed("cf start #{app_name}")
 
       app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
       if app_info.include? '"diego": true'
@@ -103,6 +105,7 @@ describe 'GuardDog buildpack alone' do
 
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
+      expect_503_on_unresponsive_path
     end
 
     it 'fails if the app does not bind to a port' do
