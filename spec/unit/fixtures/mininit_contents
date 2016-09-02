@@ -3,6 +3,7 @@
 set -e
 
 export TIMEOUT_SERVER=${TIMEOUT_SERVER:-60s}
+export MAXCONN=${MAXCONN:-0}
 
 PORT=3000 FOO=bar A=B baz &
 

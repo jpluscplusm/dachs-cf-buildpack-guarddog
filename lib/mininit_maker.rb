@@ -17,6 +17,7 @@ class MininitMaker
 set -e
 
 export TIMEOUT_SERVER=${TIMEOUT_SERVER:-60s}
+export MAXCONN=${MAXCONN:-0}
 
 #{app_command} &
 

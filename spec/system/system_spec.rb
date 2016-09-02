@@ -116,6 +116,7 @@ describe 'GuardDog with multi-buildpack' do
 
       diego = push_and_check_if_diego?
       expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
+      expect_command_to_succeed("cf set-env #{app_name} MAXCONN 1")
       diego ? start_diego_app : start_dea_app
 
       2.times do
