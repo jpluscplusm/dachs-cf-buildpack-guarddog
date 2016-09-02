@@ -83,7 +83,10 @@ describe 'GuardDog with multi-buildpack' do
       expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
       diego ? start_diego_app : start_dea_app
 
+      started = false
+
       thread = Thread.new do
+        started = true
         response = make_slow_request(25)
         expect(response.body).to eq('I slept!')
       end
@@ -149,11 +152,12 @@ describe 'GuardDog with multi-buildpack' do
 
   def execute_post_and_expect(path, exception)
     expect{
-        RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/#{path}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
-      }.to raise_error(exception)
+      RestClient::Request.execute(method: :post, url: "https://#{app_name}.#{app_domain}/#{path}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+    }.to raise_error(exception)
   end
 
   def make_slow_request(delay)
+    # Using curl as RestClient would not reliably send requests in order!
     code = `curl -so/dev/null --user foo:bar -w %{http_code} -k https://#{app_name}.#{app_domain}/slow?delay=#{delay}`
     code.to_i
   end
