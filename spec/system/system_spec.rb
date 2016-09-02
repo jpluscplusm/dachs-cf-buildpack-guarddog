@@ -83,21 +83,50 @@ describe 'GuardDog with multi-buildpack' do
       expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
       diego ? start_diego_app : start_dea_app
 
-      started = false
-
       thread = Thread.new do
-        started = true
         response = make_slow_request(25)
         expect(response.body).to eq('I slept!')
       end
 
       # Saw race conditions where request in separate thread was processed after
       # request in main thread below
-      Wait.until_true!(timeout_in_seconds: 3) {
-        started
+      Wait.until_true!(timeout_in_seconds: 15) {
+        `cf logs #{app_name} --recent`.include?('Requests in flight: 1')
       }
 
       make_requests_and_expect(10, 503)
+    end
+  end
+
+  context "when the app is requested more times than it can handle" do
+    let(:language) { 'ruby' }
+    let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
+    let(:procfile_path) { File.join(app_path, 'Procfile') }
+
+    after(:each) do
+      FileUtils.rm_rf(procfile_path)
+    end
+
+    it "the number of requests is throttled by haproxy" do
+      write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
+
+      File.open(File.join(app_path, 'Procfile'), 'w') { |file|
+        file.puts 'web: rackup -p $PORT -s puma -O Threads=10:10'
+      }
+
+      diego = push_and_check_if_diego?
+      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
+      diego ? start_diego_app : start_dea_app
+
+      2.times do
+        Thread.new do
+          RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/slow?delay=5", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')
+        end
+      end
+
+      logs = `cf logs #{app_name} --recent`
+      expect(logs).to include('Requests in flight: 1')
+      expect(logs).to_not include('Requests in flight: 2')
     end
   end
 
