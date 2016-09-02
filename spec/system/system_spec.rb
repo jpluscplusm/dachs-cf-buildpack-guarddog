@@ -94,7 +94,7 @@ describe 'GuardDog with multi-buildpack' do
       # Saw race conditions where request in separate thread was processed after
       # request in main thread below
       Wait.until_true!(timeout_in_seconds: 3) {
-        thread.status == 'sleep'
+        started
       }
 
       response = make_slow_request(0)
