@@ -2,7 +2,7 @@
 
 set -e
 
-export TIMEOUT_SERVER=${TIMEOUT_SERVER:60s}
+export TIMEOUT_SERVER=${TIMEOUT_SERVER:-60s}
 
 PORT=3000 baz &
 
