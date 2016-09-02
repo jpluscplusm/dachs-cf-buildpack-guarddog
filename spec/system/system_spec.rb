@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'rest-client'
+require 'rspec/eventually'
 require 'securerandom'
 require 'tmpdir'
 require 'wait_until'
@@ -55,6 +56,10 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_returns_hello_world
 
       execute_post_and_expect("crash", RestClient::BadGateway)
+      expect {
+        `cf events #{app_name}`
+      }.to eventually(include('app.crash')).within 90
+
       expect_command_to_succeed_and_output("cf events #{app_name}", 'app.crash')
 
       wait_for_app_recovery
@@ -67,9 +72,10 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_returns_hello_world
 
       execute_post_and_expect("exit", RestClient::InternalServerError)
-      output = `cf events #{app_name}`
-      expect($?.success?).to be_truthy
-      expect(output.scan('app.crash').size).to eq(3)
+      expect {
+        output = `cf events #{app_name}`
+        output.scan('app.crash').size
+      }.to eventually(eq(3)).within 90
     end
   end
 

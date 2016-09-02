@@ -10,6 +10,7 @@ group :test do
   gem 'buildpack-packager', git: 'https://github.com/cloudfoundry-incubator/buildpack-packager'
   gem 'rest-client'
   gem 'rspec'
+  gem 'rspec-eventually'
   gem 'wait_until'
   gem 'webmock'
 end
