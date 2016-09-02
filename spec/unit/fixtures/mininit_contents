@@ -2,6 +2,8 @@
 
 set -e
 
+export TIMEOUT_SERVER=${TIMEOUT_SERVER:60s}
+
 PORT=3000 FOO=bar A=B baz &
 
 while ! nc -z localhost 3000; do
@@ -11,3 +13,5 @@ done
 ./haproxy -f haproxy.cfg &
 
 wait -n
+
+echo Terminating due to a child process exiting

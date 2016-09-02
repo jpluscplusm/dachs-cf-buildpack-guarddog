@@ -16,6 +16,8 @@ class MininitMaker
 
 set -e
 
+export TIMEOUT_SERVER=${TIMEOUT_SERVER:-60s}
+
 #{app_command} &
 
 while ! nc -z localhost #{FORCED_PORT}; do
@@ -27,7 +29,6 @@ done
 wait -n
 
 echo Terminating due to a child process exiting
-
 EOF
     mininit.puts(contents)
     mininit.close
@@ -42,7 +43,7 @@ private
     config_vars = parse_config(yaml["config_vars"])
     raw_command = parse_command(yaml["default_process_types"])
     command = raw_command.gsub(/\$PORT/, "#{FORCED_PORT}")
-    
+
     "PORT=#{FORCED_PORT} #{config_vars}#{command}"
   end
 
