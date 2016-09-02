@@ -97,8 +97,7 @@ describe 'GuardDog with multi-buildpack' do
         started
       }
 
-      response = make_slow_request(0)
-      expect(response).to eq(503)
+      make_requests_and_expect(10, 503)
     end
   end
 
@@ -160,5 +159,14 @@ describe 'GuardDog with multi-buildpack' do
     # Using curl as RestClient would not reliably send requests in order!
     code = `curl -so/dev/null --user foo:bar -w %{http_code} -k https://#{app_name}.#{app_domain}/slow?delay=#{delay}`
     code.to_i
+  end
+
+  def make_requests_and_expect(number, code)
+    for i in 1..number
+      Thread.new do
+        observed = make_slow_request(0)
+        expect(observed).to eq(code), "Request #{i} returned #{observed}"
+      end
+    end
   end
 end
