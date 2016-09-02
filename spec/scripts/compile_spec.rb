@@ -11,6 +11,7 @@ describe 'bin/compile' do
     @cache_dir = File.join(Dir.tmpdir, ('guarddog-cache'))
     @mininit_file = File.join(@app_dir, 'mininit.sh')
     @haproxy = File.join(@app_dir, 'haproxy')
+    @fiveothree = File.join(@app_dir, '503.http')
     system("ruby bin/compile #{@app_dir} #{@cache_dir}")
   end
 
@@ -24,5 +25,9 @@ describe 'bin/compile' do
 
   it 'downloads haproxy' do
     expect(File.exists?(@haproxy)).to be_truthy
+  end
+
+  it "copies the 503.http file to the app directory" do
+    expect(File.exists?(@fiveothree)).to be_truthy
   end
 end
