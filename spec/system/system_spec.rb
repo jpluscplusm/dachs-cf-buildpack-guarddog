@@ -71,7 +71,10 @@ describe 'GuardDog with multi-buildpack' do
       wait_for_app_recovery
       expect_app_returns_hello_world
 
+      is_diego? ?
+      execute_post_and_expect("exit", Net::HTTPBadResponse) :
       execute_post_and_expect("exit", RestClient::InternalServerError)
+
       expect {
         output = `cf events #{app_name}`
         output.scan('app.crash').size
@@ -146,6 +149,10 @@ describe 'GuardDog with multi-buildpack' do
 
   def push_and_check_if_diego?
     expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start")
+    is_diego?
+  end
+
+  def is_diego?
     app_info = `cf curl /v2/apps/$(cf app #{app_name} --guid)`
     app_info.include? '"diego": true'
   end
