@@ -101,7 +101,7 @@ $ cf create-space test -o test
 ```
 
 ```
-$ fly --t lite login  --concourse-url http://192.168.100.4:8080
+$ fly -t lite login  --concourse-url http://192.168.100.4:8080
 ```
 
 ```
