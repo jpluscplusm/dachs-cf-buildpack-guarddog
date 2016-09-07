@@ -25,6 +25,8 @@ while ! nc -z localhost #{FORCED_PORT}; do
   sleep 0.2
 done
 
+nc -lku 3001 &
+
 #{hap_command} &
 
 wait -n

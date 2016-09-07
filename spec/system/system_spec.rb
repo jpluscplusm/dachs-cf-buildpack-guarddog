@@ -86,7 +86,7 @@ describe 'GuardDog with multi-buildpack' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
 
-    it "returns a 503" do
+    it "returns a 503 for each unsatisfied request" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       diego = push_and_check_if_diego?
       expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
@@ -104,6 +104,7 @@ describe 'GuardDog with multi-buildpack' do
       }
 
       make_requests_and_expect(10, 503)
+      expect_hap_termination_state(10)
     end
   end
 
@@ -211,5 +212,11 @@ describe 'GuardDog with multi-buildpack' do
         expect(observed).to eq(code), "Request #{i} returned #{observed}"
       end
     end
+  end
+
+  def expect_hap_termination_state(number)
+    output = `cf logs #{app_name} --recent`
+    expect($?.success?).to be_truthy
+    expect(output.scan('sH--').size).to eq(number)
   end
 end

@@ -70,6 +70,7 @@ describe 'GuardDog buildpack alone' do
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
       expect_503_on_unresponsive_path
+      expect_hap_termination_state
     end
 
     it 'fails if the app does not bind to a port' do
@@ -106,6 +107,7 @@ describe 'GuardDog buildpack alone' do
       expect_hap_to_require_basic_auth
       expect_200_on_valid_auth
       expect_503_on_unresponsive_path
+      expect_hap_termination_state
     end
 
     it 'fails if the app does not bind to a port' do
@@ -128,5 +130,9 @@ describe 'GuardDog buildpack alone' do
    expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}/", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'foo', password: 'bar')}.to raise_error { |error|
       expect(error.response.code).to be(503)
     }
+  end
+
+  def expect_hap_termination_state
+    expect_command_to_succeed_and_output("cf logs #{app_name} --recent", "sH--")
   end
 end

@@ -11,6 +11,8 @@ while ! nc -z localhost 3000; do
   sleep 0.2
 done
 
+nc -lku 3001 &
+
 ./haproxy -f haproxy.cfg &
 
 wait -n
