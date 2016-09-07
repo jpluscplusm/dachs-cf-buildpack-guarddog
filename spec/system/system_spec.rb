@@ -107,7 +107,7 @@ describe 'GuardDog with multi-buildpack' do
     end
   end
 
-  context "when the app is requested more times than it can handle" do
+  context "when the app is requested more times concurrently than the configurable maximum" do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-slow-app' }
     let(:procfile_path) { File.join(app_path, 'Procfile') }
