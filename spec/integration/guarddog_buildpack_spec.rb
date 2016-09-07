@@ -57,7 +57,10 @@ describe 'GuardDog buildpack alone' do
     after(:each) do
       unless skip_teardown
         `cf delete-buildpack -f guarddog` rescue nil
-        `cf delete-org -f #{org}` rescue nil
+
+        if org == app_name
+          `cf delete-org -f #{org}` rescue nil
+        end
       end
     end
 
