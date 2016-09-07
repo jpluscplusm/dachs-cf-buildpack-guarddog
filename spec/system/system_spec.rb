@@ -2,6 +2,7 @@ require 'fileutils'
 require 'rest-client'
 require 'rspec/eventually'
 require 'securerandom'
+require 'thwait'
 require 'tmpdir'
 require 'wait_until'
 
@@ -103,8 +104,9 @@ describe 'GuardDog with multi-buildpack' do
         `cf logs #{app_name} --recent`.include?('Requests in flight: 1')
       }
 
-      make_requests_and_expect(10, 503)
-      expect_hap_termination_state(10)
+      number_of_requests = 10
+      make_requests_and_expect(number_of_requests, 503)
+      expect_hap_termination_state(number_of_requests + 1) # we made one earlier too
     end
   end
 
@@ -206,12 +208,14 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   def make_requests_and_expect(number, code)
-    for i in 1..number
+    threads = number.times.map { |count|
       Thread.new do
         observed = make_slow_request(0)
-        expect(observed).to eq(code), "Request #{i} returned #{observed}"
+        expect(observed).to eq(code), "Request #{count} returned #{observed}"
       end
-    end
+    }
+
+    ThreadsWait.all_waits(*threads)
   end
 
   def expect_hap_termination_state(number)
