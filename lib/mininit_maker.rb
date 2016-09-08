@@ -28,7 +28,7 @@ done
 
 nc -lku 3001 &
 
-#export GD_DEV_PASSWORD=${GD_DEV_PASSWORD:-#{SecureRandom.uuid}}
+export GD_DEV_PASSWORD=${GD_DEV_PASSWORD:-#{SecureRandom.uuid}}
 
 #{hap_command} &
 
