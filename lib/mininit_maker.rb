@@ -1,4 +1,5 @@
 require 'yaml'
+require 'securerandom'
 
 class MininitMaker
 
@@ -26,6 +27,8 @@ while ! nc -z localhost #{FORCED_PORT}; do
 done
 
 nc -lku 3001 &
+
+#export GD_DEV_PASSWORD=${GD_DEV_PASSWORD:-#{SecureRandom.uuid}}
 
 #{hap_command} &
 
