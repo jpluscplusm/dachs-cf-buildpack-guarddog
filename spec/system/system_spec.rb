@@ -55,7 +55,11 @@ describe 'GuardDog with multi-buildpack' do
       push_and_check_if_diego? ? start_diego_app : start_dea_app
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
-      expect_app_returns_401_with_blank_dev_password
+      expect_app_returns_with_dev_password(401, '')
+      expect_app_returns_with_dev_password(401, 'password')
+      expect_command_to_succeed("cf set-env #{app_name} GD_DEV_PASSWORD password")
+      expect_command_to_succeed("cf restart #{app_name}")
+      expect_app_returns_with_dev_password(200, 'password')
 
       execute_post_and_expect("crash", RestClient::BadGateway)
       expect {
@@ -179,10 +183,15 @@ describe 'GuardDog with multi-buildpack' do
     expect(response.body).to include('Hello, World!')
   end
 
-  def expect_app_returns_401_with_blank_dev_password
-    expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'dev', password: '')}.to raise_error { |error|
-      expect(error.response.code).to be(401)
-    }
+  def expect_app_returns_with_dev_password(code, password)
+    if code < 400
+      response = RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'dev', password: password)
+      expect(response.code).to be(code)
+    else
+      expect{RestClient::Request.execute(method: :get, url: "https://#{app_name}.#{app_domain}", verify_ssl: OpenSSL::SSL::VERIFY_NONE, user: 'dev', password: password)}.to raise_error { |error|
+        expect(error.response.code).to be(code)
+      }
+    end
   end
 
   def start_diego_app
