@@ -13,6 +13,8 @@ done
 
 nc -lku 3001 &
 
+export GD_DEV_PASSWORD=${GD_DEV_PASSWORD:-${RANDOM}${RANDOM}${RANDOM}${RANDOM}}
+
 ./haproxy -f haproxy.cfg &
 
 wait -n

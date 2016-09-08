@@ -1,9 +1,9 @@
 require 'yaml'
-require 'securerandom'
 
 class MininitMaker
 
   FORCED_PORT = 3000
+  RANDOM_PASSWORD = "${RANDOM}${RANDOM}${RANDOM}${RANDOM}"
 
   def initialize(app_release)
     @app_release = app_release
@@ -28,7 +28,7 @@ done
 
 nc -lku 3001 &
 
-export GD_DEV_PASSWORD=${GD_DEV_PASSWORD:-#{SecureRandom.uuid}}
+export GD_DEV_PASSWORD=${GD_DEV_PASSWORD:-#{RANDOM_PASSWORD}}
 
 #{hap_command} &
 
