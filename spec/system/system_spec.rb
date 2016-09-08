@@ -49,6 +49,7 @@ describe 'GuardDog with multi-buildpack' do
   context 'when pushing a Ruby app' do
     let(:language) { 'ruby' }
     let(:app_path) { 'spec/system/fixtures/ruby-hello-world' }
+    let(:dev_password) { 'password' }
 
     it 'runs the app behind HAProxy' do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
@@ -56,10 +57,10 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_requires_basic_auth
       expect_app_returns_hello_world
       expect_app_returns_with_dev_password(401, '')
-      expect_app_returns_with_dev_password(401, 'password')
-      expect_command_to_succeed("cf set-env #{app_name} GD_DEV_PASSWORD password")
+      expect_app_returns_with_dev_password(401, dev_password)
+      expect_command_to_succeed("cf set-env #{app_name} GD_DEV_PASSWORD #{dev_password}")
       expect_command_to_succeed("cf restart #{app_name}")
-      expect_app_returns_with_dev_password(200, 'password')
+      expect_app_returns_with_dev_password(200, dev_password)
 
       execute_post_and_expect("crash", RestClient::BadGateway)
       expect {
