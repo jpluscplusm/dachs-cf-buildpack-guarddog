@@ -19,7 +19,6 @@ FileUtils.cp("#{current_dir}/haproxy.cfg", "#{app_dir}")
 FileUtils.cp("#{current_dir}/503.http", "#{app_dir}")
 FileUtils.chmod(00755, "#{app_dir}/haproxy")
 
-destination = File.join(app_dir, 'mininit.sh')
 if File.file?("#{app_dir}/Procfile")
   procfile = "#{app_dir}/Procfile"
 else
