@@ -20,6 +20,11 @@ FileUtils.cp("#{current_dir}/503.http", "#{app_dir}")
 FileUtils.chmod(00755, "#{app_dir}/haproxy")
 
 destination = File.join(app_dir, 'mininit.sh')
-MininitMaker.new("#{app_dir}/app_release.out").create
+if File.file?("#{app_dir}/Procfile")
+  procfile = "#{app_dir}/Procfile"
+else
+  procfile = nil
+end
+MininitMaker.new("#{app_dir}/app_release.out", procfile).create
 FileUtils.mv("mininit.sh", "#{app_dir}/mininit.sh")
 FileUtils.chmod(00755, "#{app_dir}/mininit.sh")

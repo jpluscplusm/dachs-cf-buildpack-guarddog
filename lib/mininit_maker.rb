@@ -5,8 +5,9 @@ class MininitMaker
   FORCED_PORT = 3000
   RANDOM_PASSWORD = "${RANDOM}${RANDOM}${RANDOM}${RANDOM}"
 
-  def initialize(app_release)
+  def initialize(app_release, procfile)
     @app_release = app_release
+    @procfile = procfile
   end
 
   def create
@@ -41,9 +42,10 @@ EOF
   end
 
 private
-  attr_reader :app_release
+  attr_reader :app_release, :procfile
 
   def app_command
+    handle_procfile unless procfile.nil?
     yaml = YAML.load_file(app_release)
 
     config_vars = parse_config(yaml["config_vars"])
@@ -51,6 +53,28 @@ private
     command = raw_command.gsub(/\$PORT/, "#{FORCED_PORT}")
 
     "PORT=#{FORCED_PORT} #{config_vars}#{command}"
+  end
+
+  def handle_procfile
+    add_process_types unless process_types_present?
+    add_procfile_command
+  end
+
+  def add_process_types
+    open(app_release, 'a') { |f|
+      f.puts "\ndefault_process_types:"
+    }
+  end
+
+  def process_types_present?
+    File.readlines(app_release).grep(/.*default_process_types:.*/).any?
+  end
+
+  def add_procfile_command
+    command = IO.read(procfile)
+    open(app_release, 'a') { |f|
+      f.puts "  #{command}"
+    }
   end
 
   def parse_config(vars)
