@@ -236,8 +236,9 @@ describe 'GuardDog with multi-buildpack' do
   end
 
   def expect_hap_termination_state(number)
-    output = `cf logs #{app_name} --recent`
-    expect($?.success?).to be_truthy
-    expect(output.scan('sH--').size).to eq(number)
+    expect {
+        output = `cf logs #{app_name} --recent`
+        output.scan('sH--').size
+      }.to eventually(eq(number)).within 90
   end
 end
