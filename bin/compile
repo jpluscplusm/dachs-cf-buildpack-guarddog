@@ -24,7 +24,7 @@ if File.file?("#{app_dir}/Procfile")
 else
   procfile = nil
 end
-MininitMaker.new("#{app_dir}/last_pack_release.out", procfile).create
+MininitMaker.new("#{app_dir}/app_release.out", procfile).create
 FileUtils.remove_file(procfile, true)
 FileUtils.mv("mininit.sh", "#{app_dir}/mininit.sh")
 FileUtils.chmod(00755, "#{app_dir}/mininit.sh")
