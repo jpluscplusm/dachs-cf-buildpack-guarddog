@@ -1,16 +1,36 @@
-require 'rspec/core/rake_task' 
+require 'rspec/core/rake_task'
 
 namespace :spec do
   RSpec::Core::RakeTask.new(:unit) do |t|
     t.pattern = "spec/unit/**/*_spec.rb"
   end
-  
+
   RSpec::Core::RakeTask.new(:scripts) do |t|
     t.pattern = "spec/scripts/**/*_spec.rb"
   end
 
   RSpec::Core::RakeTask.new(:integration) do |t|
     t.pattern = "spec/integration/**/*_spec.rb"
+  end
+
+  RSpec::Core::RakeTask.new(:system_python) do |t|
+    t.pattern = FileList['spec/system/**/*_spec.rb'].exclude('spec/system/fixtures/**/*spec.rb')
+    t.rspec_opts = "--tag system_python"
+  end
+
+  RSpec::Core::RakeTask.new(:system_ruby) do |t|
+    t.pattern = FileList['spec/system/**/*_spec.rb'].exclude('spec/system/fixtures/**/*spec.rb')
+    t.rspec_opts = "--tag system_ruby"
+  end
+
+  RSpec::Core::RakeTask.new(:system_timeout) do |t|
+    t.pattern = FileList['spec/system/**/*_spec.rb'].exclude('spec/system/fixtures/**/*spec.rb')
+    t.rspec_opts = "--tag system_timeout"
+  end
+
+  RSpec::Core::RakeTask.new(:system_concurrent) do |t|
+    t.pattern = FileList['spec/system/**/*_spec.rb'].exclude('spec/system/fixtures/**/*spec.rb')
+    t.rspec_opts = "--tag system_concurrent"
   end
 
   RSpec::Core::RakeTask.new(:system) do |t|

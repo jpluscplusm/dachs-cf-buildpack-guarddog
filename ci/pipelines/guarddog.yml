@@ -7,12 +7,12 @@ jobs:
     trigger: true
   - task: unit-tests
     file: dachs-cf-buildpack-guarddog/ci/unit-test/task.yml
-    on_failure:
-      put: slack-notify
-      params:
-        text: ":dachshund_snooty: :boom: unit-tests job failed! :boom:\n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/unit-tests :construction:"
-        channel: {{slack-channel}}
-        username: concourse
+    # on_failure:
+      # put: slack-notify
+      # params:
+      #   text: ":dachshund_snooty: :boom: unit-tests job failed! :boom:\n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/unit-tests :construction:"
+      #   channel: {{slack-channel}}
+      #   username: concourse
 
 - name: script-tests
   plan:
@@ -22,12 +22,12 @@ jobs:
     passed: [unit-tests]
   - task: script-tests
     file: dachs-cf-buildpack-guarddog/ci/script-test/task.yml
-    on_failure:
-      put: slack-notify
-      params:
-        text: ":dachshund_snooty: :boom: scrip-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/script-tests :construction:"
-        channel: {{slack-channel}}
-        username: concourse
+    # on_failure:
+      # put: slack-notify
+      # params:
+      #   text: ":dachshund_snooty: :boom: scrip-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/script-tests :construction:"
+      #   channel: {{slack-channel}}
+      #   username: concourse
 
 - name: integration-tests
   plan:
@@ -47,14 +47,14 @@ jobs:
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
       CREATE_BUILDPACK: {{create_buildpack}}
       GIT_BRANCH: master
-    on_failure:
-      put: slack-notify
-      params:
-        text: ":dachshund_snooty: :boom: guarddog-integration-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests :construction:"
-        channel: {{slack-channel}}
-        username: concourse
+    # on_failure:
+      # put: slack-notify
+      # params:
+      #   text: ":dachshund_snooty: :boom: guarddog-integration-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-tests :construction:"
+      #   channel: {{slack-channel}}
+      #   username: concourse
 
-- name: system-tests
+- name: python-system-tests
   plan:
   - get: dachs-cf-buildpack-guarddog
     resource: master
@@ -63,11 +63,8 @@ jobs:
   - get: dachs-cf-buildpack-multi
     resource: buildpack-multi
     trigger: true
-  - put: acceptance
-    params:
-      repository: dachs-cf-buildpack-guarddog
-  - task: run-system-tests
-    file: dachs-cf-buildpack-guarddog/ci/system-test/task.yml
+  - task: run-python-system-tests
+    file: dachs-cf-buildpack-guarddog/ci/system-test/python/task.yml
     params:
       CF_API: {{cf_api}}
       APP_DOMAIN: {{app_domain}}
@@ -78,18 +75,96 @@ jobs:
       MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
       GD_BUILDPACK_URI: {{gd_buildpack_uri}}
       GIT_BRANCH: master
-    on_success:
-        put: slack-notify
-        params:
-          text: "guarddog-system-tests job passed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests"
-          channel: {{slack-channel}}
-          username: concourse
-    on_failure:
-        put: slack-notify
-        params:
-          text: ":dachshund_snooty: :boom: guarddog-system-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests :construction: "
-          channel: {{slack-channel}}
-          username: concourse
+    # on_failure:
+
+- name: ruby-system-tests
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
+    trigger: true
+    passed: [integration-tests]
+  - get: dachs-cf-buildpack-multi
+    resource: buildpack-multi
+    trigger: true
+  - task: run-ruby-system-tests
+    file: dachs-cf-buildpack-guarddog/ci/system-test/ruby/task.yml
+    params:
+      CF_API: {{cf_api}}
+      APP_DOMAIN: {{app_domain}}
+      CF_USERNAME: {{cf_username}}
+      CF_PASSWORD: {{cf_password}}
+      CF_ORG: {{cf_org}}
+      CF_SPACE: {{cf_space}}
+      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
+      GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+      GIT_BRANCH: master
+    # on_failure:
+
+- name: timeout-system-tests
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
+    trigger: true
+    passed: [integration-tests]
+  - get: dachs-cf-buildpack-multi
+    resource: buildpack-multi
+    trigger: true
+  - task: run-timeout-system-tests
+    file: dachs-cf-buildpack-guarddog/ci/system-test/timeout/task.yml
+    params:
+      CF_API: {{cf_api}}
+      APP_DOMAIN: {{app_domain}}
+      CF_USERNAME: {{cf_username}}
+      CF_PASSWORD: {{cf_password}}
+      CF_ORG: {{cf_org}}
+      CF_SPACE: {{cf_space}}
+      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
+      GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+      GIT_BRANCH: master
+    # on_failure:
+
+- name: concurrent-system-tests
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
+    trigger: true
+    passed: [integration-tests]
+  - get: dachs-cf-buildpack-multi
+    resource: buildpack-multi
+    trigger: true
+  - task: run-concurrent-system-tests
+    file: dachs-cf-buildpack-guarddog/ci/system-test/concurrent/task.yml
+    params:
+      CF_API: {{cf_api}}
+      APP_DOMAIN: {{app_domain}}
+      CF_USERNAME: {{cf_username}}
+      CF_PASSWORD: {{cf_password}}
+      CF_ORG: {{cf_org}}
+      CF_SPACE: {{cf_space}}
+      MULTI_BUILDPACK_URI: {{multi_buildpack_uri}}
+      GD_BUILDPACK_URI: {{gd_buildpack_uri}}
+      GIT_BRANCH: master
+    # on_failure:
+
+- name: tests-complete
+  plan:
+  - get: dachs-cf-buildpack-guarddog
+    resource: master
+    trigger: true
+    passed: [python-system-tests, ruby-system-tests, timeout-system-tests, concurrent-system-tests]
+  - put: acceptance
+    # on_success:
+        # put: slack-notify
+        # params:
+        #   text: "guarddog-system-tests job passed! \n Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests"
+        #   channel: {{slack-channel}}
+        #   username: concourse
+    # on_failure:
+        # put: slack-notify
+        # params:
+        #   text: ":dachshund_snooty: :boom: guarddog-system-tests job failed! :boom: \n :construction: Check: https://ci.dachs.dog/pipelines/guarddog/jobs/guarddog-system-tests :construction: "
+        #   channel: {{slack-channel}}
+        #   username: concourse
 
 - name: speculative-system-tests
   plan:
@@ -112,7 +187,7 @@ jobs:
 - name: promote
   plan:
   - get: acceptance
-    passed: [system-tests]
+    passed: [tests-complete]
   - put: stable
     params:
       repository: acceptance
@@ -134,12 +209,12 @@ resources:
   type: git
   source:
     uri: https://github.com/DigitalInnovation/dachs-cf-buildpack-guarddog
-    branch: master
+    branch: WIP-split-pipeline
 - name: acceptance
   type: git
   source:
     uri: git@github.com:DigitalInnovation/dachs-cf-buildpack-guarddog.git
-    branch: acceptance
+    branch: hjksdhjfjskdfj
     private_key: {{private-repo-key}}
 - name: stable
   type: git

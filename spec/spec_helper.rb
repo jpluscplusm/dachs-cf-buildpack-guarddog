@@ -1,3 +1,7 @@
+RSpec.configure do |config|
+  config.treat_symbols_as_metadata_keys_with_true_values = true
+end
+
 def expect_command_to_succeed(command)
   system(command)
   expect($?.success?).to be_truthy
