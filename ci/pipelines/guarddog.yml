@@ -138,7 +138,7 @@ jobs:
         channel: {{slack-channel}}
         username: concourse
 
-- name: concurrent-system-tests
+- name: concurrency-system-tests
   plan:
   - get: dachs-cf-buildpack-guarddog
     resource: master
@@ -171,7 +171,7 @@ jobs:
   - get: dachs-cf-buildpack-guarddog
     resource: master
     trigger: true
-    passed: [python-system-tests, ruby-system-tests, timeout-system-tests, concurrent-system-tests]
+    passed: [python-system-tests, ruby-system-tests, timeout-system-tests, concurrency-system-tests]
   - put: acceptance
     on_success:
         put: slack-notify
