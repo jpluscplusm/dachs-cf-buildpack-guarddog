@@ -173,6 +173,8 @@ jobs:
     trigger: true
     passed: [python-system-tests, ruby-system-tests, timeout-system-tests, concurrency-system-tests]
   - put: acceptance
+    params:
+      repository: dachs-cf-buildpack-guarddog
     on_success:
         put: slack-notify
         params:
