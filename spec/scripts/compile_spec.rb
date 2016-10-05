@@ -7,7 +7,7 @@ describe 'bin/compile' do
 
   before(:all) do
     @app_dir = Dir.mktmpdir('app')
-    FileUtils.cp("#{current_dir}/fixtures/app_release.out", "#{@app_dir}/app_release.out")
+    FileUtils.cp("#{current_dir}/fixtures/app_release.out", "#{@app_dir}/last_pack_release.out")
     @cache_dir = File.join(Dir.tmpdir, ('guarddog-cache'))
     @mininit_file = File.join(@app_dir, 'mininit.sh')
     @haproxy = File.join(@app_dir, 'haproxy')

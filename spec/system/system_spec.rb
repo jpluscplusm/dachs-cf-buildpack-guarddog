@@ -17,6 +17,7 @@ describe 'GuardDog with multi-buildpack' do
   let(:git_branch) { ENV.fetch('GIT_BRANCH') }
   let(:multi_buildpack_uri) { "#{ENV.fetch('MULTI_BUILDPACK_URI')}" }
   let(:guarddog_buildpack_uri) { "#{ENV.fetch('GD_BUILDPACK_URI')}##{git_branch}" }
+  let(:ps_buildpack_uri) { "#{ENV.fetch('PS_BUILDPACK_URI')}" }
   let(:multi_buildpack_conf_path) { File.join(app_path, '.buildpacks') }
 
 
@@ -58,8 +59,9 @@ describe 'GuardDog with multi-buildpack' do
       expect_app_returns_hello_world
       expect_app_returns_with_dev_password(401, '')
       expect_app_returns_with_dev_password(401, dev_password)
-      expect_command_to_succeed("cf set-env #{app_name} GD_DEV_PASSWORD #{dev_password}")
+      expect_command_to_succeed("cf set-env #{app_name} FBP_RP_USER_dev #{dev_password}")
       expect_command_to_succeed("cf restart #{app_name}")
+      sleep 2
       expect_app_returns_with_dev_password(200, dev_password)
 
       execute_post_and_expect("crash", RestClient::BadGateway)
@@ -96,7 +98,8 @@ describe 'GuardDog with multi-buildpack' do
     it "returns a 503 for each unsatisfied request" do
       write_buildpacks_file(app_path, 'https://github.com/cloudfoundry/ruby-buildpack.git#master')
       diego = push_and_check_if_diego?
-      expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
+      expect_command_to_succeed("cf set-env #{app_name} FBP_RP_DEFAULT_TIMEOUT_SERVER_INACTIVITY 15s")
+      expect_command_to_succeed("cf set-env #{app_name} FBP_RP_APP_MAXCONN 1")
       diego ? start_diego_app : start_dea_app
 
       thread = Thread.new do
@@ -134,7 +137,7 @@ describe 'GuardDog with multi-buildpack' do
 
       diego = push_and_check_if_diego?
       expect_command_to_succeed("cf set-env #{app_name} TIMEOUT_SERVER 15s")
-      expect_command_to_succeed("cf set-env #{app_name} MAXCONN 1")
+      expect_command_to_succeed("cf set-env #{app_name} FBP_RP_APP_MAXCONN 1")
       diego ? start_diego_app : start_dea_app
 
       2.times do

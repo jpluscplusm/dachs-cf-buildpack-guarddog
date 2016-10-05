@@ -2,11 +2,15 @@ def write_buildpacks_file(fixture_dir, buildpack_url)
   File.open(multi_buildpack_conf_path, 'w') { |file|
     file.puts buildpack_url
     file.puts guarddog_buildpack_uri
+    file.puts ps_buildpack_uri
   }
 end
 
 def push_and_check_if_diego?
   expect_command_to_succeed("cf push #{app_name} -p #{app_path} -b #{multi_buildpack_uri} --no-start")
+  expect_command_to_succeed("cf set-env #{app_name} FBP_RP_USER_dev nottheexpectedpassword")
+  expect_command_to_succeed("cf set-env #{app_name} FBP_RP_USER_foo bar")
+  expect_command_to_succeed("cf set-env #{app_name} FBP_RP_ACTIVE_USERNAMES 'dev,foo'")
   is_diego?
 end
 
